@@ -8,22 +8,24 @@
 
 /* Begin PBXBuildFile section */
 		CB86DEEC22E8C8FB00B53E45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB86DEEB22E8C8FB00B53E45 /* AppDelegate.swift */; };
-		CB86DEEE22E8C8FB00B53E45 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB86DEED22E8C8FB00B53E45 /* ViewController.swift */; };
+		CB86DEEE22E8C8FB00B53E45 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB86DEED22E8C8FB00B53E45 /* MapViewController.swift */; };
 		CB86DEF122E8C8FB00B53E45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB86DEEF22E8C8FB00B53E45 /* Main.storyboard */; };
 		CB86DEF422E8C8FB00B53E45 /* VirtualTourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CB86DEF222E8C8FB00B53E45 /* VirtualTourist.xcdatamodeld */; };
 		CB86DEF622E8C8FB00B53E45 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB86DEF522E8C8FB00B53E45 /* Assets.xcassets */; };
 		CB86DEF922E8C8FB00B53E45 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB86DEF722E8C8FB00B53E45 /* LaunchScreen.storyboard */; };
+		CB86DF0322E8D88600B53E45 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB86DF0222E8D88600B53E45 /* DataController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		CB86DEE822E8C8FB00B53E45 /* VirtualTourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualTourist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB86DEEB22E8C8FB00B53E45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		CB86DEED22E8C8FB00B53E45 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		CB86DEED22E8C8FB00B53E45 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		CB86DEF022E8C8FB00B53E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		CB86DEF322E8C8FB00B53E45 /* VirtualTourist.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VirtualTourist.xcdatamodel; sourceTree = "<group>"; };
 		CB86DEF522E8C8FB00B53E45 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CB86DEF822E8C8FB00B53E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CB86DEFA22E8C8FB00B53E45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CB86DF0222E8D88600B53E45 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,12 +59,13 @@
 			isa = PBXGroup;
 			children = (
 				CB86DEEB22E8C8FB00B53E45 /* AppDelegate.swift */,
-				CB86DEED22E8C8FB00B53E45 /* ViewController.swift */,
+				CB86DEED22E8C8FB00B53E45 /* MapViewController.swift */,
 				CB86DEEF22E8C8FB00B53E45 /* Main.storyboard */,
 				CB86DEF522E8C8FB00B53E45 /* Assets.xcassets */,
 				CB86DEF722E8C8FB00B53E45 /* LaunchScreen.storyboard */,
 				CB86DEFA22E8C8FB00B53E45 /* Info.plist */,
 				CB86DEF222E8C8FB00B53E45 /* VirtualTourist.xcdatamodeld */,
+				CB86DF0222E8D88600B53E45 /* DataController.swift */,
 			);
 			path = VirtualTourist;
 			sourceTree = "<group>";
@@ -138,7 +141,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB86DEEE22E8C8FB00B53E45 /* ViewController.swift in Sources */,
+				CB86DEEE22E8C8FB00B53E45 /* MapViewController.swift in Sources */,
+				CB86DF0322E8D88600B53E45 /* DataController.swift in Sources */,
 				CB86DEEC22E8C8FB00B53E45 /* AppDelegate.swift in Sources */,
 				CB86DEF422E8C8FB00B53E45 /* VirtualTourist.xcdatamodeld in Sources */,
 			);

@@ -7,12 +7,14 @@
 //
 
 import UIKit
+import Foundation
 
-class ViewController: UIViewController {
+class MapViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        let pin:Pin
     }
 
 
