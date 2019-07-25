@@ -13,13 +13,19 @@ import MapKit
 
 class MapViewController: UIViewController {
     
+    @IBOutlet weak var mapView: MKMapView!
+    
     var dataController: DataController!
     
     var pins: [Pin] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        mapView.delegate = self
+        
+        var longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(sender:)))
+        mapView.addGestureRecognizer(longPressGestureRecognizer)
         
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
@@ -35,5 +41,21 @@ class MapViewController: UIViewController {
 
 extension MapViewController: MKMapViewDelegate {
     
+    @objc func addAnnotation(sender: UILongPressGestureRecognizer) {
+        // Adapted from StackOverflow post
+        let recognizedPoint: CGPoint = sender.location(in: mapView)
+        let recognizedCoordinate: CLLocationCoordinate2D = mapView.convert(recognizedPoint, toCoordinateFrom: mapView)
+        
+        let newPin = Pin(context: dataController.viewContext)
+        newPin.latitude = recognizedCoordinate.latitude
+        newPin.longitude = recognizedCoordinate.longitude
+        try? dataController.viewContext.save()
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = recognizedCoordinate
+        
+        mapView.addAnnotation(annotation)
+    }
+
 }
 
