@@ -8,15 +8,32 @@
 
 import UIKit
 import Foundation
+import CoreData
+import MapKit
 
 class MapViewController: UIViewController {
+    
+    var dataController: DataController!
+    
+    var pins: [Pin] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        let pin:Pin
+        
+        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
+        
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            pins = result
+            
+        }
+        
     }
 
 
+}
+
+extension MapViewController: MKMapViewDelegate {
+    
 }
 
