@@ -31,7 +31,6 @@ class MapViewController: UIViewController {
         
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             pins = result
-            
         }
         
     }
@@ -49,12 +48,19 @@ extension MapViewController: MKMapViewDelegate {
         let newPin = Pin(context: dataController.viewContext)
         newPin.latitude = recognizedCoordinate.latitude
         newPin.longitude = recognizedCoordinate.longitude
-        try? dataController.viewContext.save()
+        do {
+            try dataController.viewContext.save()
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
+            pins.append(annotation)
+            mapView.addAnnotation(annotation)
+        } catch {
+            print("nope")
+        }
         
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = recognizedCoordinate
+      
         
-        mapView.addAnnotation(annotation)
+        
     }
 
 }
