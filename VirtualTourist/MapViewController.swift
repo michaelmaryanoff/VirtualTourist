@@ -17,20 +17,29 @@ class MapViewController: UIViewController {
     
     var dataController: DataController!
     
-    var pins: [Pin] = []
+    var annotations: [MKPointAnnotation] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         mapView.delegate = self
         
-        var longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(sender:)))
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(sender:)))
         mapView.addGestureRecognizer(longPressGestureRecognizer)
         
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            pins = result
+            
+            for pin in result {
+                var loadedAnnotation = MKPointAnnotation()
+                let lat = pin.latitude
+                let long = pin.longitude
+                let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+                loadedAnnotation.coordinate = coordinate
+                annotations.append(loadedAnnotation)
+                mapView.addAnnotation(loadedAnnotation)
+            }
         }
         
     }
@@ -49,14 +58,15 @@ extension MapViewController: MKMapViewDelegate {
         newPin.latitude = recognizedCoordinate.latitude
         newPin.longitude = recognizedCoordinate.longitude
         do {
-            try dataController.viewContext.save()
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
-            pins.append(annotation)
+            annotations.append(annotation)
             mapView.addAnnotation(annotation)
+            try dataController.viewContext.save()
         } catch {
             print("nope")
         }
+        
         
       
         
