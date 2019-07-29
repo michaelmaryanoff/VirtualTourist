@@ -29,6 +29,10 @@ class MapViewController: UIViewController {
         
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
+        FlikrClient.shared().requestPhotos(lat: 4.658549, long: -74.210812) { (success, error) in
+            print("called")
+        }
+        
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
             for pin in result {
@@ -39,7 +43,10 @@ class MapViewController: UIViewController {
                 loadedAnnotation.coordinate = coordinate
                 annotations.append(loadedAnnotation)
                 mapView.addAnnotation(loadedAnnotation)
+                print(pin.placeName)
             }
+            
+            
         }
         
     }
@@ -60,6 +67,20 @@ extension MapViewController: MKMapViewDelegate {
         do {
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
+            var locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
+            let geocoder = CLGeocoder()
+            geocoder.reverseGeocodeLocation(locationForGeocoding) { (placemarks, error) in
+                if error == nil {
+                    if let placemark = placemarks?[0] {
+                        let location = placemark.location!
+                    
+                        // Have some restrictions on locality
+                        var locationString = placemark.locality ?? "Could not determine locality"
+                        newPin.placeName = locationString
+                        print(locationString)
+                    }
+                }
+            }
             annotations.append(annotation)
             mapView.addAnnotation(annotation)
             try dataController.viewContext.save()
@@ -67,11 +88,29 @@ extension MapViewController: MKMapViewDelegate {
             print("nope")
         }
         
+    }
+    
+    func getCoordinate(addressString: String, completionHandler: @escaping(CLLocationCoordinate2D, Error?) -> Void ) {
         
-      
         
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(addressString) { (placemarks, error) in
+            if error == nil {
+                if let placemark = placemarks?[0] {
+                    let location = placemark.location!
+                    
+                    completionHandler(location.coordinate, nil)
+                    return
+                }
+            }
+            
+            completionHandler(kCLLocationCoordinate2DInvalid, error as Error?)
+            
+        }
         
     }
+    
+    
 
 }
 
