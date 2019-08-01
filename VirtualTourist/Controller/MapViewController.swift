@@ -43,13 +43,15 @@ class MapViewController: UIViewController {
                 loadedAnnotation.coordinate = coordinate
                 annotations.append(loadedAnnotation)
                 mapView.addAnnotation(loadedAnnotation)
-                print(pin.placeName)
+//                print(pin.placeName)
             }
             
             
         }
         
     }
+    
+    
 
 
 }
@@ -77,7 +79,7 @@ extension MapViewController: MKMapViewDelegate {
                         // Have some restrictions on locality
                         var locationString = placemark.locality ?? "Could not determine locality"
                         newPin.placeName = locationString
-                        print(locationString)
+//                        print(locationString)
                     }
                 }
             }
@@ -109,6 +111,59 @@ extension MapViewController: MKMapViewDelegate {
         }
         
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "presentPhotosCollection" {
+            
+            let destinationVC = segue.destination as! PhotosViewController
+            
+            destinationVC.passedPin = sender as? Pin
+        }
+    }
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        var passedPin = Pin(context: dataController.viewContext)
+        passedPin.latitude = Double(view.annotation?.coordinate.latitude ?? 0)
+        passedPin.longitude = Double(view.annotation?.coordinate.longitude ?? 0)
+
+        
+        self.performSegue(withIdentifier: "presentPhotosCollection", sender: passedPin)
+    }
+    
+//    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+//        print("callout tapped")
+//
+//        if control == view.rightCalloutAccessoryView {
+//            let app = UIApplication.shared
+//
+//
+//
+//            guard let toOpen = view.annotation?.subtitle as? String else {
+//                performUIUpdatesOnMain {
+//                    self.presentAlertControllerDismiss(title: "Could not open link", message: "No URL provided")
+//                }
+//                return
+//            }
+//
+//            guard let urlToOpen = URL(string: toOpen) else {
+//                performUIUpdatesOnMain {
+//                    self.presentAlertControllerDismiss(title: "Could not open link", message: "No URL provided")
+//                }
+//                return
+//            }
+//
+//            app.open(urlToOpen, options: [:]) { (success) in
+//                if !success {
+//                    performUIUpdatesOnMain {
+//                        self.presentAlertControllerDismiss(title: "Could not open link", message: "URL is not valid")
+//                    }
+//                }
+//
+//
+//            }
+            
+//        }
+//    }
     
     
 
