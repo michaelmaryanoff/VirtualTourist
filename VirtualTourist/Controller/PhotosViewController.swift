@@ -11,8 +11,12 @@ import MapKit
 
 class PhotosViewController: UIViewController {
     
-    var passedPin: Pin?
-    var photos = [Photo]()
+    var dataController: DataController!
+    
+    var passedLong: Double?
+    var passedLat: Double?
+    var photos = [String]()
+    
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     
@@ -20,9 +24,16 @@ class PhotosViewController: UIViewController {
         super.viewDidLoad()
         
         initalizeArray()
-        FlikrClient.shared().requestPhotos(lat: passedPin?.latitude ?? 0, long: passedPin?.longitude ?? 0) { (success, error) in
+        FlikrClient.shared().requestPhotos(lat: passedLat ?? 0, long: passedLong ?? 0) { (success, photoUrls, error) in
             if success {
                 print("success in call")
+                guard let photosUrls = photoUrls else {
+                    print("could not fetch")
+                    return
+                }
+                
+                self.photos = photosUrls
+                print(self.photos)
             } else {
                 print("error in call")
             }
@@ -46,8 +57,8 @@ extension PhotosViewController: MKMapViewDelegate {
     
     func initalizeArray() {
         var annotations = [MKPointAnnotation]()
-        let lat = CLLocationDegrees(passedPin?.latitude ?? 0)
-        let long = CLLocationDegrees(passedPin?.longitude ?? 0)
+        let lat = CLLocationDegrees(passedLat ?? 0)
+        let long = CLLocationDegrees(passedLong ?? 0)
         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
@@ -64,6 +75,7 @@ extension PhotosViewController: MKMapViewDelegate {
 extension PhotosViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print(photos.count)
         return photos.count
     }
     

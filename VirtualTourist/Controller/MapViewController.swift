@@ -29,7 +29,7 @@ class MapViewController: UIViewController {
         
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
-        FlikrClient.shared().requestPhotos(lat: 4.658549, long: -74.210812) { (success, error) in
+        FlikrClient.shared().requestPhotos(lat: 4.658549, long: -74.210812) { (success, photouUrls, error) in
             print("called")
         }
         
@@ -117,7 +117,8 @@ extension MapViewController: MKMapViewDelegate {
             
             let destinationVC = segue.destination as! PhotosViewController
             
-            destinationVC.passedPin = sender as? Pin
+            destinationVC.passedLat = sender as? Double
+            destinationVC.passedLong = sender as? Double
         }
     }
     

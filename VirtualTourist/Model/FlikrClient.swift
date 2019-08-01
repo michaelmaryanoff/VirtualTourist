@@ -20,7 +20,7 @@ class FlikrClient {
         static let extras = "extras=url_h"
     }
     
-    func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, Error?) -> Void) {
+    func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, [String]?, Error?) -> Void) {
         var url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&format=json" + "&nojsoncallback=1"
         var tmpUrl = "https://jsonplaceholder.typicode.com/photos"
         var request = URLRequest(url: URL(string: url)!)
@@ -29,20 +29,44 @@ class FlikrClient {
 //            print(url)
             
             guard let data = data else {
-                completion(false, error)
+                completion(false, [], error)
                 return
             }
             
-        
-            
-            
 //            print(String(data: data, encoding: .utf8)!)
-            
             do {
+                var stringArray = [String]()
                 var json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                let jsonDict = json as? [String:Any]
-                print("jsonDict: \(jsonDict)")
-//                print("Here is your json: \(json)")
+                
+                guard let jsonDict = json as? [AnyHashable:Any] else {
+                    print("guard 1")
+                    return
+                }
+                
+                guard let photos = jsonDict["photos"] as? [String:Any] else {
+                    print("guard 2")
+                    return
+                }
+                
+                
+                guard let photosArray = photos["photo"] as? [[String:Any]] else {
+                    print("guard 3")
+                    return
+                }
+                
+                print("photosarray: \(photosArray)")
+                
+                
+                for photoItem in photosArray {
+                    if let newPhoto = self.getUrl(fromJSON: photoItem) {
+                        stringArray.append(newPhoto)
+                    }
+                    
+                }
+                print(stringArray)
+                
+                completion(true, stringArray, nil)
+                
             } catch {
                 print(error.localizedDescription)
             }
@@ -52,6 +76,16 @@ class FlikrClient {
         }
         task.resume()
     }
+    
+    func getUrl(fromJSON json: [String:Any]) -> String? {
+        guard let urlString = json["url_h"] as? String else {
+            print("could not get string")
+            return nil
+        }
+        return urlString
+    }
+    
+ 
     
     class func shared() -> FlikrClient {
         struct Singleton {
