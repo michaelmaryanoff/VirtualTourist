@@ -20,7 +20,7 @@ class FlikrClient {
         static let extras = "extras=url_h"
     }
     
-    func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, [String]?, Error?) -> Void) {
+    func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, [[String:Any]]?, Error?) -> Void) {
         var url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&format=json" + "&nojsoncallback=1"
         var tmpUrl = "https://jsonplaceholder.typicode.com/photos"
         var request = URLRequest(url: URL(string: url)!)
@@ -42,6 +42,9 @@ class FlikrClient {
                     print("guard 1")
                     return
                 }
+                print(jsonDict)
+                print(error)
+                print(response)
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")
@@ -65,7 +68,7 @@ class FlikrClient {
                 }
 //                print(stringArray)
                 
-                completion(true, stringArray, nil)
+                completion(true, photosArray, nil)
                 
             } catch {
                 print(error.localizedDescription)

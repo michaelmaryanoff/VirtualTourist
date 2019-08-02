@@ -62,19 +62,21 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
-                self.photos = photosUrls
-                print("photosurl count: \(photosUrls.count)")
-                let firstPhoto = photosUrls[1]
-                DispatchQueue.main.async {
-                    self.imageView.image = nil
-                }
+                print(photosUrls)
                 
-                self.withBigImage(urlString: firstPhoto, completion: { (image) in
-                    DispatchQueue.main.async {
-                        self.imageView.image = image
-                    }
-
-                })
+//                self.photos = photosUrls
+//                print("photosurl count: \(photosUrls.count)")
+//                let firstPhoto = photosUrls[1]
+//                DispatchQueue.main.async {
+//                    self.imageView.image = nil
+//                }
+//
+//                self.withBigImage(urlString: firstPhoto, completion: { (image) in
+//                    DispatchQueue.main.async {
+//                        self.imageView.image = image
+//                    }
+//
+//                })
 //                print("photos array at 0: \(self.photos[0])")
             } else {
                 print("error in call")
