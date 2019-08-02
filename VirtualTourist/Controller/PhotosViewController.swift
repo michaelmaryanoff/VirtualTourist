@@ -8,12 +8,13 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class PhotosViewController: UIViewController {
     
 //    var dataController = FlikrClient.shared().dataController.viewContext
     
-    var passedPin: TempPin?
+    
     var dataController: DataController!
     
     var photos = [String]()
@@ -25,18 +26,10 @@ class PhotosViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         initalizeArray()
-//        self.photos = []
         
+        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
-        guard let passedPinLat = passedPin?.latitude else {
-            print("passed no pin ")
-            return
-        }
-        
-        guard let passedPinLong = passedPin?.longitude else {
-            print("passed no pin ")
-            return
-        }
+        let passedPin = Pin(context: dataController.viewContext)
         
         FlikrClient.shared().requestPhotos(lat: 4.663908, long: -74.044283) { (success, photoUrls, error) in
             if success {
