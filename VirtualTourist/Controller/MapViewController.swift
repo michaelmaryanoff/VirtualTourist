@@ -51,6 +51,12 @@ class MapViewController: UIViewController {
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        
+    }
+    
     
 
 
@@ -118,17 +124,17 @@ extension MapViewController: MKMapViewDelegate {
             let destinationVC = segue.destination as! PhotosViewController
             
             destinationVC.passedPin = sender as! TempPin
+            destinationVC.dataController = dataController
          
         }
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-//        var passedPin = Pin(context: dataController.viewContext)
-        var passedPin = TempPin(latitude: view.annotation?.coordinate.latitude, longitude: view.annotation?.coordinate.longitude)
-//        passedPin.latitude = Double(view.annotation?.coordinate.latitude ?? 0)
-//        passedPin.longitude = Double(view.annotation?.coordinate.longitude ?? 0)
-        print(passedPin)
-        
+        var passedPin = Pin(context: dataController.viewContext)
+//        var passedPin = Pin(latitude: view.annotation?.coordinate.latitude, longitude: view.annotation?.coordinate.longitude)
+        passedPin.latitude = Double(view.annotation?.coordinate.latitude ?? 0)
+        passedPin.longitude = Double(view.annotation?.coordinate.longitude ?? 0)
+    
         self.performSegue(withIdentifier: "presentPhotosCollection", sender: passedPin)
     }
     

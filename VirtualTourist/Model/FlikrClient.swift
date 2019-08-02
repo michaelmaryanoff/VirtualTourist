@@ -54,7 +54,7 @@ class FlikrClient {
                     return
                 }
                 
-                print("photosarray: \(photosArray)")
+                print("photosarray: \(photos)")
                 
                 
                 for photoItem in photosArray {

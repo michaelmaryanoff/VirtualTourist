@@ -14,6 +14,7 @@ class PhotosViewController: UIViewController {
 //    var dataController = FlikrClient.shared().dataController.viewContext
     
     var passedPin: TempPin?
+    var dataController: DataController!
     
     var photos = [String]()
     
@@ -37,7 +38,7 @@ class PhotosViewController: UIViewController {
             return
         }
         
-        FlikrClient.shared().requestPhotos(lat: 8.672249082049191, long: 8.672249082049191) { (success, photoUrls, error) in
+        FlikrClient.shared().requestPhotos(lat: 4.663908, long: -74.044283) { (success, photoUrls, error) in
             if success {
                 print("success in call")
                 guard let photosUrls = photoUrls else {
@@ -46,17 +47,17 @@ class PhotosViewController: UIViewController {
                 }
                 self.photos = photosUrls
                 print(photosUrls)
-//                var firstPhoto = photosUrls[1]
-//                DispatchQueue.main.async {
-//                    self.imageView.image = nil
-//                }
+                var firstPhoto = photosUrls[1]
+                DispatchQueue.main.async {
+                    self.imageView.image = nil
+                }
                 
-//                self.withBigImage(urlString: firstPhoto, completion: { (image) in
-//                    DispatchQueue.main.async {
-//                        self.imageView.image = image
-//                    }
-//
-//                })
+                self.withBigImage(urlString: firstPhoto, completion: { (image) in
+                    DispatchQueue.main.async {
+                        self.imageView.image = image
+                    }
+
+                })
 //                print("photos array at 0: \(self.photos[0])")
             } else {
                 print("error in call")
