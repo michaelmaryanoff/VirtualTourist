@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotosViewController: UIViewController {
+class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate {
     
 //    var dataController = FlikrClient.shared().dataController.viewContext
     
@@ -21,6 +21,25 @@ class PhotosViewController: UIViewController {
     
     var photos = [String]()
     
+    
+    var fetchedResultsController:NSFetchedResultsController<Photo>!
+    
+    fileprivate func setupFetchedResultsController() {
+        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        
+        let sortDescriptor = NSSortDescriptor(key: "url", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+        fetchedResultsController.delegate = self
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
+
+    
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var imageView: UIImageView!
@@ -29,7 +48,9 @@ class PhotosViewController: UIViewController {
         super.viewDidLoad()
         initalizeArray()
         
-        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
+        collectionView.dataSource = self
+        
+        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         
         print("Photos VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
         
@@ -58,8 +79,15 @@ class PhotosViewController: UIViewController {
                 print("error in call")
             }
         }
+        setupFetchedResultsController()
 
-        // Do any additional setup after loading the view.
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        setupFetchedResultsController()
     }
     
 
@@ -120,6 +148,8 @@ extension PhotosViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let identifier = "PhotoCell"
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+        
+        
         
         return cell
     }

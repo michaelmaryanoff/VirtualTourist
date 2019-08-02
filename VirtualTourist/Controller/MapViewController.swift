@@ -11,13 +11,29 @@ import Foundation
 import CoreData
 import MapKit
 
-class MapViewController: UIViewController {
+class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     
     var dataController: DataController!
     
     var annotations: [MKPointAnnotation] = []
+    
+    var fetchedResultsController:NSFetchedResultsController<Pin>!
+    
+    fileprivate func setupFetchedResultsController() {
+        let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "latitude", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "pins")
+        fetchedResultsController.delegate = self
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,12 +59,13 @@ class MapViewController: UIViewController {
             
             
         }
+        setupFetchedResultsController()
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        setupFetchedResultsController()
         
     }
 
