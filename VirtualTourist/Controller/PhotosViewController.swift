@@ -17,6 +17,8 @@ class PhotosViewController: UIViewController {
     
     var dataController: DataController!
     
+    lazy var passedPin = Pin(context: dataController.viewContext)
+    
     var photos = [String]()
     
     @IBOutlet weak var mapView: MKMapView!
@@ -29,18 +31,18 @@ class PhotosViewController: UIViewController {
         
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
-        let passedPin = Pin(context: dataController.viewContext)
+        print("Photos VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
         
-        FlikrClient.shared().requestPhotos(lat: 4.663908, long: -74.044283) { (success, photoUrls, error) in
+        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             if success {
-                print("success in call")
+                
                 guard let photosUrls = photoUrls else {
                     print("could not fetch")
                     return
                 }
+                
                 self.photos = photosUrls
-                print(photosUrls)
-                var firstPhoto = photosUrls[1]
+                let firstPhoto = photosUrls[1]
                 DispatchQueue.main.async {
                     self.imageView.image = nil
                 }
@@ -74,15 +76,8 @@ extension PhotosViewController: MKMapViewDelegate {
     }
     
     func initalizeArray() {
-        guard let passedPinLat = passedPin?.latitude else {
-            print("passed no pin ")
-            return
-        }
-        
-        guard let passedPinLong = passedPin?.longitude else {
-            print("passed no pin ")
-            return
-        }
+        var passedPinLat = passedPin.latitude
+        var passedPinLong = passedPin.longitude
         var annotations = [MKPointAnnotation]()
         let lat = CLLocationDegrees(passedPinLat)
         let long = CLLocationDegrees(passedPinLong)
@@ -119,7 +114,6 @@ extension PhotosViewController: MKMapViewDelegate {
 extension PhotosViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(photos.count)
         return photos.count
     }
     

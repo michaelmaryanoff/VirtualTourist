@@ -54,7 +54,7 @@ class FlikrClient {
                     return
                 }
                 
-                print("photosarray: \(photos)")
+//                print("photosarray: \(photos)")
                 
                 
                 for photoItem in photosArray {
@@ -79,7 +79,7 @@ class FlikrClient {
     
     func getUrl(fromJSON json: [String:Any]) -> String? {
         guard let urlString = json["url_h"] as? String else {
-            print("could not get string")
+//            print("could not get string")
             return nil
         }
         return urlString

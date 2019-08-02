@@ -39,7 +39,6 @@ class MapViewController: UIViewController {
                 loadedAnnotation.coordinate = coordinate
                 annotations.append(loadedAnnotation)
                 mapView.addAnnotation(loadedAnnotation)
-//                print(pin.placeName)
             }
             
             
@@ -52,8 +51,6 @@ class MapViewController: UIViewController {
         
         
     }
-    
-    
 
 
 }
@@ -81,7 +78,6 @@ extension MapViewController: MKMapViewDelegate {
                         // Have some restrictions on locality
                         var locationString = placemark.locality ?? "Could not determine locality"
                         newPin.placeName = locationString
-//                        print(locationString)
                     }
                 }
             }
@@ -94,25 +90,7 @@ extension MapViewController: MKMapViewDelegate {
         
     }
     
-    func getCoordinate(addressString: String, completionHandler: @escaping(CLLocationCoordinate2D, Error?) -> Void ) {
-        
-        
-        let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(addressString) { (placemarks, error) in
-            if error == nil {
-                if let placemark = placemarks?[0] {
-                    let location = placemark.location!
-                    
-                    completionHandler(location.coordinate, nil)
-                    return
-                }
-            }
-            
-            completionHandler(kCLLocationCoordinate2DInvalid, error as Error?)
-            
-        }
-        
-    }
+
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "presentPhotosCollection" {
@@ -127,9 +105,9 @@ extension MapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         var passedPin = Pin(context: dataController.viewContext)
-//        var passedPin = Pin(latitude: view.annotation?.coordinate.latitude, longitude: view.annotation?.coordinate.longitude)
         passedPin.latitude = Double(view.annotation?.coordinate.latitude ?? 0)
         passedPin.longitude = Double(view.annotation?.coordinate.longitude ?? 0)
+        print("Map VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
     
         self.performSegue(withIdentifier: "presentPhotosCollection", sender: passedPin)
     }
@@ -168,6 +146,26 @@ extension MapViewController: MKMapViewDelegate {
             
 //        }
 //    }
+    
+    //    func getCoordinate(addressString: String, completionHandler: @escaping(CLLocationCoordinate2D, Error?) -> Void ) {
+    //
+    //
+    //        let geocoder = CLGeocoder()let passedPin = Pin(context: dataController.viewContext)
+    //        geocoder.geocodeAddressString(addressString) { (placemarks, error) in
+    //            if error == nil {
+    //                if let placemark = placemarks?[0] {
+    //                    let location = placemark.location!
+    //
+    //                    completionHandler(location.coordinate, nil)
+    //                    return
+    //                }
+    //            }
+    //
+    //            completionHandler(kCLLocationCoordinate2DInvalid, error as Error?)
+    //
+    //        }
+    //
+    //    }
     
     
 
