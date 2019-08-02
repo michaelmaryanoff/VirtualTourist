@@ -38,6 +38,10 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+                FlikrClient.shared().requestPhotos(lat: 4.658549, long: -74.210812) { (success, photouUrls, error) in
+                    print("called")
+                }
+        
         mapView.delegate = self
         
         let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(sender:)))

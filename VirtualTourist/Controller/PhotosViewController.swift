@@ -20,6 +20,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     lazy var passedPin = Pin(context: dataController.viewContext)
     
     var photos = [String]()
+    var photosArray: [Photo] = []
     
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     
@@ -49,6 +50,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         
         collectionView.dataSource = self
+        collectionView.delegate = self
         
         var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         
@@ -142,7 +144,7 @@ extension PhotosViewController: MKMapViewDelegate {
     
 }
 
-extension PhotosViewController: UICollectionViewDataSource {
+extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return fetchedResultsController.sections![section].numberOfObjects
@@ -155,13 +157,13 @@ extension PhotosViewController: UICollectionViewDataSource {
         
         let photosArray = self.photos
         
-        var firstPhoto = photosArray[1]
+//        var firstPhoto = photosArray[1]
  
-        self.withBigImage(urlString: firstPhoto, completion: { (image) in
-                DispatchQueue.main.async {
-                    cell.imageView.image
-                }
-            })
+//        self.withBigImage(urlString: firstPhoto, completion: { (image) in
+//                DispatchQueue.main.async {
+//                    cell.imageView.image
+//                }
+//            })
         
         
         
