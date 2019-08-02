@@ -21,7 +21,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var photos = [String]()
     
-    
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     
     fileprivate func setupFetchedResultsController() {
@@ -48,9 +47,10 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         super.viewDidLoad()
         initalizeArray()
         
+        
         collectionView.dataSource = self
         
-        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         
         print("Photos VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
         
@@ -63,6 +63,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 }
                 
                 self.photos = photosUrls
+                print("photosurl count: \(photosUrls.count)")
                 let firstPhoto = photosUrls[1]
                 DispatchQueue.main.async {
                     self.imageView.image = nil
@@ -142,12 +143,23 @@ extension PhotosViewController: MKMapViewDelegate {
 extension PhotosViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photos.count
+        return fetchedResultsController.sections![section].numberOfObjects
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let identifier = "PhotoCell"
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+        let identifier = "CustomCell"
+        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
+        
+        let photosArray = self.photos
+        
+        var firstPhoto = photosArray[1]
+ 
+        self.withBigImage(urlString: firstPhoto, completion: { (image) in
+                DispatchQueue.main.async {
+                    cell.imageView.image
+                }
+            })
         
         
         
