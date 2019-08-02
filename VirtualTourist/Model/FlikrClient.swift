@@ -63,7 +63,7 @@ class FlikrClient {
                     }
                     
                 }
-                print(stringArray)
+//                print(stringArray)
                 
                 completion(true, stringArray, nil)
                 

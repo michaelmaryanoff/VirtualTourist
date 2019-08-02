@@ -29,9 +29,9 @@ class MapViewController: UIViewController {
         
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
-        FlikrClient.shared().requestPhotos(lat: 4.658549, long: -74.210812) { (success, photouUrls, error) in
-            print("called")
-        }
+//        FlikrClient.shared().requestPhotos(lat: 4.658549, long: -74.210812) { (success, photouUrls, error) in
+//            print("called")
+//        }
         
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
@@ -117,16 +117,17 @@ extension MapViewController: MKMapViewDelegate {
             
             let destinationVC = segue.destination as! PhotosViewController
             
-            destinationVC.passedLat = sender as? Double
-            destinationVC.passedLong = sender as? Double
+            destinationVC.passedPin = sender as! TempPin
+         
         }
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        var passedPin = Pin(context: dataController.viewContext)
-        passedPin.latitude = Double(view.annotation?.coordinate.latitude ?? 0)
-        passedPin.longitude = Double(view.annotation?.coordinate.longitude ?? 0)
-
+//        var passedPin = Pin(context: dataController.viewContext)
+        var passedPin = TempPin(latitude: view.annotation?.coordinate.latitude, longitude: view.annotation?.coordinate.longitude)
+//        passedPin.latitude = Double(view.annotation?.coordinate.latitude ?? 0)
+//        passedPin.longitude = Double(view.annotation?.coordinate.longitude ?? 0)
+        print(passedPin)
         
         self.performSegue(withIdentifier: "presentPhotosCollection", sender: passedPin)
     }
