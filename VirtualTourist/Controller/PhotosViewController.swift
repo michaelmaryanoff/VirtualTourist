@@ -64,7 +64,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
-                print(photosUrls)
+                print("photosUrls: \(photosUrls)")
                 
 //                self.photos = photosUrls
 //                print("photosurl count: \(photosUrls.count)")
