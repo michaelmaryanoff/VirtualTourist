@@ -19,8 +19,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     lazy var passedPin = Pin(context: dataController.viewContext)
     
-    var photos = [String]()
+    var photoStringArray = [String]()
     var photosArray: [Photo] = []
+    var imageArray: [UIImage] = []
     
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     
@@ -64,28 +65,21 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
-                print("photosUrls: \(photosUrls)")
+//                print("photosUrls: \(photosUrls)")
+                self.photoStringArray = photosUrls
                 
-//                self.photos = photosUrls
-//                print("photosurl count: \(photosUrls.count)")
-//                let firstPhoto = photosUrls[1]
-//                DispatchQueue.main.async {
-//                    self.imageView.image = nil
-//                }
-//
-//                self.withBigImage(urlString: firstPhoto, completion: { (image) in
-//                    DispatchQueue.main.async {
-//                        self.imageView.image = image
-//                    }
-//
-//                })
-//                print("photos array at 0: \(self.photos[0])")
+                for photo in self.photoStringArray {
+                    self.withBigImage(urlString: photo, completion: { (image) in
+                        self.imageArray.append(image)
+                        print("imagearray: \(self.imageArray)")
+                    })
+                }
+                
             } else {
                 print("error in call")
             }
         }
         setupFetchedResultsController()
-
         
     }
     
@@ -147,7 +141,7 @@ extension PhotosViewController: MKMapViewDelegate {
 extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchedResultsController.sections![section].numberOfObjects
+        return imageArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -155,16 +149,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-        let photosArray = self.photos
-        
-//        var firstPhoto = photosArray[1]
- 
-//        self.withBigImage(urlString: firstPhoto, completion: { (image) in
-//                DispatchQueue.main.async {
-//                    cell.imageView.image
-//                }
-//            })
-        
+        cell.imageView.image = imageArray[indexPath.row]
         
         
         return cell
