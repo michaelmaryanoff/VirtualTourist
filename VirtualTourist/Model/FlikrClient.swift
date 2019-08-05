@@ -42,9 +42,6 @@ class FlikrClient {
                     print("guard 1")
                     return
                 }
-                print(jsonDict)
-                print(error)
-                print(response)
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")
@@ -66,7 +63,7 @@ class FlikrClient {
                     }
                     
                 }
-//                print(stringArray)
+                print("stringarray: \(stringArray)")
                 
                 completion(true, photosArray, nil)
                 
