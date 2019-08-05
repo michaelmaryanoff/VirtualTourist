@@ -59,44 +59,57 @@
                                 <rect key="frame" x="0.0" y="88" width="414" height="128"/>
                             </mapView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="1wn-Qn-clX">
-                                <rect key="frame" x="0.0" y="224" width="414" height="419"/>
+                                <rect key="frame" x="0.0" y="224" width="414" height="618"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="419" id="286-lO-6js"/>
+                                    <constraint firstAttribute="height" constant="618" id="286-lO-6js"/>
                                 </constraints>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="gd2-Am-AO2">
-                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="itemSize" width="156" height="132"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CustomCell" id="V5A-WL-iMx" customClass="CustomCell" customModule="VirtualTourist" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="customCell" id="V5A-WL-iMx" customClass="CustomCell" customModule="VirtualTourist" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="156" height="132"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="156" height="132"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ik9-LG-Hr3">
-                                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="156" height="132"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="156" id="1Ly-7e-EH0"/>
+                                                        <constraint firstAttribute="height" constant="132" id="7fi-wd-ntS"/>
+                                                    </constraints>
                                                 </imageView>
                                             </subviews>
                                         </view>
                                         <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="ik9-LG-Hr3" secondAttribute="trailing" id="66a-v7-EbF"/>
                                             <constraint firstAttribute="trailing" secondItem="ik9-LG-Hr3" secondAttribute="trailing" id="BPz-jT-kfb"/>
+                                            <constraint firstItem="ik9-LG-Hr3" firstAttribute="top" secondItem="V5A-WL-iMx" secondAttribute="top" id="Gy0-sx-A01"/>
                                             <constraint firstAttribute="bottom" secondItem="ik9-LG-Hr3" secondAttribute="bottom" id="Ua9-hO-qiV"/>
+                                            <constraint firstAttribute="bottom" secondItem="ik9-LG-Hr3" secondAttribute="bottom" id="YEG-pf-Eoj"/>
                                             <constraint firstItem="ik9-LG-Hr3" firstAttribute="leading" secondItem="V5A-WL-iMx" secondAttribute="leading" id="Z5y-pq-mLk"/>
+                                            <constraint firstItem="ik9-LG-Hr3" firstAttribute="leading" secondItem="V5A-WL-iMx" secondAttribute="leading" id="ZGZ-O3-D9m"/>
                                             <constraint firstItem="ik9-LG-Hr3" firstAttribute="top" secondItem="V5A-WL-iMx" secondAttribute="top" id="tx9-4O-Y4G"/>
                                         </constraints>
+                                        <size key="customSize" width="156" height="132"/>
                                         <connections>
                                             <outlet property="imageView" destination="ik9-LG-Hr3" id="C6F-GQ-Ock"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="BVC-ON-eIg" id="vOA-Os-Nqx"/>
+                                    <outlet property="delegate" destination="BVC-ON-eIg" id="Qno-nd-KTL"/>
+                                </connections>
                             </collectionView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="n5K-Kz-upM">
-                                <rect key="frame" x="0.0" y="637" width="414" height="225"/>
+                                <rect key="frame" x="0.0" y="850" width="414" height="12"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -106,10 +119,10 @@
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="leading" secondItem="JVq-eT-kZg" secondAttribute="leading" id="5et-3b-KIC"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="top" secondItem="JVq-eT-kZg" secondAttribute="bottom" constant="8" symbolic="YES" id="Al2-cC-XIn"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="leading" secondItem="b4h-DV-yUf" secondAttribute="leading" id="GCx-3F-mtX"/>
-                            <constraint firstItem="1wn-Qn-clX" firstAttribute="bottom" secondItem="p2Z-Fo-gup" secondAttribute="bottom" constant="-219" id="GkR-Rw-lSQ"/>
+                            <constraint firstItem="1wn-Qn-clX" firstAttribute="bottom" secondItem="p2Z-Fo-gup" secondAttribute="bottom" constant="-20" id="GkR-Rw-lSQ"/>
                             <constraint firstItem="n5K-Kz-upM" firstAttribute="trailing" secondItem="1wn-Qn-clX" secondAttribute="trailing" id="Ink-JZ-QJn"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="trailing" secondItem="JVq-eT-kZg" secondAttribute="trailing" id="J9O-DJ-41o"/>
-                            <constraint firstItem="n5K-Kz-upM" firstAttribute="top" secondItem="1wn-Qn-clX" secondAttribute="bottom" constant="-6" id="Jwj-jZ-qxL"/>
+                            <constraint firstItem="n5K-Kz-upM" firstAttribute="top" secondItem="1wn-Qn-clX" secondAttribute="bottom" constant="8" id="Jwj-jZ-qxL"/>
                             <constraint firstItem="JVq-eT-kZg" firstAttribute="top" secondItem="b4h-DV-yUf" secondAttribute="bottom" id="Y1s-cT-Yai"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="leading" secondItem="GDo-y6-WI7" secondAttribute="leading" id="giu-Sa-HnL"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="top" secondItem="JVq-eT-kZg" secondAttribute="bottom" constant="8" id="gr7-oo-QE7"/>

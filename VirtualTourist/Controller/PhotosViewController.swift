@@ -71,6 +71,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 for photo in self.photoStringArray {
                     self.withBigImage(urlString: photo, completion: { (image) in
                         self.imageArray.append(image)
+                        self.collectionView.reloadData()
                         print("imagearray: \(self.imageArray)")
                     })
                 }
@@ -141,13 +142,24 @@ extension PhotosViewController: MKMapViewDelegate {
 extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print(imageArray.count)
         return imageArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let identifier = "CustomCell"
+        let identifier = "customCell"
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
+        
+//        for i in photoStringArray{
+//            let photo = self.photoStringArray[indexPath.row]
+//            self.withBigImage(urlString: photo) { (image) in
+//                cell.imageView.image = image
+//            }
+//        }
+//
+        
+        
         
         cell.imageView.image = imageArray[indexPath.row]
         
