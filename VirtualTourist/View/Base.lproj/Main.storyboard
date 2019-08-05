@@ -108,33 +108,25 @@
                                     <outlet property="delegate" destination="BVC-ON-eIg" id="Qno-nd-KTL"/>
                                 </connections>
                             </collectionView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="n5K-Kz-upM">
-                                <rect key="frame" x="0.0" y="850" width="414" height="12"/>
-                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="n5K-Kz-upM" firstAttribute="leading" secondItem="1wn-Qn-clX" secondAttribute="leading" id="2ZZ-KO-Gpr"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="trailing" secondItem="b4h-DV-yUf" secondAttribute="trailing" id="4fX-Ap-whR"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="leading" secondItem="JVq-eT-kZg" secondAttribute="leading" id="5et-3b-KIC"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="top" secondItem="JVq-eT-kZg" secondAttribute="bottom" constant="8" symbolic="YES" id="Al2-cC-XIn"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="leading" secondItem="b4h-DV-yUf" secondAttribute="leading" id="GCx-3F-mtX"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="bottom" secondItem="p2Z-Fo-gup" secondAttribute="bottom" constant="-20" id="GkR-Rw-lSQ"/>
-                            <constraint firstItem="n5K-Kz-upM" firstAttribute="trailing" secondItem="1wn-Qn-clX" secondAttribute="trailing" id="Ink-JZ-QJn"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="trailing" secondItem="JVq-eT-kZg" secondAttribute="trailing" id="J9O-DJ-41o"/>
-                            <constraint firstItem="n5K-Kz-upM" firstAttribute="top" secondItem="1wn-Qn-clX" secondAttribute="bottom" constant="8" id="Jwj-jZ-qxL"/>
                             <constraint firstItem="JVq-eT-kZg" firstAttribute="top" secondItem="b4h-DV-yUf" secondAttribute="bottom" id="Y1s-cT-Yai"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="leading" secondItem="GDo-y6-WI7" secondAttribute="leading" id="giu-Sa-HnL"/>
                             <constraint firstItem="1wn-Qn-clX" firstAttribute="top" secondItem="JVq-eT-kZg" secondAttribute="bottom" constant="8" id="gr7-oo-QE7"/>
                             <constraint firstItem="JVq-eT-kZg" firstAttribute="top" secondItem="p2Z-Fo-gup" secondAttribute="top" id="iKf-xU-jLA"/>
                             <constraint firstAttribute="trailing" secondItem="1wn-Qn-clX" secondAttribute="trailing" id="jOO-fI-xeK"/>
-                            <constraint firstItem="n5K-Kz-upM" firstAttribute="bottom" secondItem="p2Z-Fo-gup" secondAttribute="bottom" id="qv9-Az-KOg"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="p2Z-Fo-gup"/>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="1wn-Qn-clX" id="ah3-XR-Ayu"/>
-                        <outlet property="imageView" destination="n5K-Kz-upM" id="lAE-oF-yux"/>
                         <outlet property="mapView" destination="JVq-eT-kZg" id="Kn0-Nq-R2x"/>
                     </connections>
                 </viewController>

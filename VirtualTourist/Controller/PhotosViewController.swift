@@ -43,7 +43,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var imageView: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -47,6 +47,7 @@ class FlikrClient {
                     print("guard 2")
                     return
                 }
+                print(photos)
                 
                 
                 guard let photosArray = photos["photo"] as? [[String:Any]] else {
