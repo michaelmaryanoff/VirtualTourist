@@ -13,9 +13,6 @@ import CoreData
 
 class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate {
     
-//    var dataController = FlikrClient.shared().dataController.viewContext
-    
-    
     var dataController: DataController!
     
     var passedPin: Pin!
@@ -26,29 +23,14 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     
-//    fileprivate func setupFetchedResultsController() {
-//        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
-////        let predicate = NSPredicate(format: "pin == %@", pin)
-//        fetchRequest.sortDescriptors = []
-//
-//        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(passedPin)-photos")
-//        fetchedResultsController.delegate = self
-//        do {
-//            try fetchedResultsController.performFetch()
-//        } catch {
-//            fatalError("The fetch could not be performed: \(error.localizedDescription)")
-//        }
-//    }
-
-    
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        initalizeArray()
         
-        var newImageArray = [Photo(context: dataController.viewContext)]
+        
+        initalizeArray()
         
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -62,36 +44,34 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         do {
             try fetchedResultsController.performFetch()
+            if let result = try? dataController.viewContext.fetch(fetchRequest) {
+                print("result: \(result)")
+                photosArray = result
+            }
         } catch {
             print("no fetchy")
         }
         
         
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            print("result: \(result)")
-            photosArray = result
-        }
         
-        print("Photos VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
         
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             if success {
                 
                 guard let photosUrls = photoUrls else {
-                    print("could not fetch")
                     return
                 }
                 
                 self.photoStringArray = photosUrls
                 
-                // TODO: convert to data with this here, and only convert to image when needed for the collection view
                 for photo in self.photoStringArray {
                     
                     self.withBigImage(urlString: photo, completion: { (image) in
-//                        self.imageArray.append(image)
+
                         let newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photo
                         newPhoto.image = UIImage.pngData(image)()
+                        
                         do {
                             self.photosArray.append(newPhoto)
                             self.imageArray.append(image)
@@ -141,7 +121,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
 extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(photosArray.count)
+//        print(photosArray.count)
         return photosArray.count
     }
     

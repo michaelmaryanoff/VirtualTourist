@@ -124,7 +124,7 @@ extension MapViewController: MKMapViewDelegate {
         var passedPin = Pin(context: dataController.viewContext)
         passedPin.latitude = Double(view.annotation?.coordinate.latitude ?? 0)
         passedPin.longitude = Double(view.annotation?.coordinate.longitude ?? 0)
-        print("Map VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
+//        print("Map VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
     
         self.performSegue(withIdentifier: "presentPhotosCollection", sender: passedPin)
     }
