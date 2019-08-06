@@ -6,6 +6,7 @@
 //  Copyright © 2019 Michael Maryanoff. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import MapKit
 import CoreData
@@ -17,7 +18,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var dataController: DataController!
     
-    lazy var passedPin = Pin(context: dataController.viewContext)
+    var passedPin: Pin!
     
     var photoStringArray = [String]()
     var photosArray: [Photo] = []
@@ -25,20 +26,19 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     
-    fileprivate func setupFetchedResultsController() {
-        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
-        
-        let sortDescriptor = NSSortDescriptor(key: "url", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
-        fetchedResultsController.delegate = self
-        do {
-            try fetchedResultsController.performFetch()
-        } catch {
-            fatalError("The fetch could not be performed: \(error.localizedDescription)")
-        }
-    }
+//    fileprivate func setupFetchedResultsController() {
+//        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+////        let predicate = NSPredicate(format: "pin == %@", pin)
+//        fetchRequest.sortDescriptors = []
+//
+//        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(passedPin)-photos")
+//        fetchedResultsController.delegate = self
+//        do {
+//            try fetchedResultsController.performFetch()
+//        } catch {
+//            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+//        }
+//    }
 
     
     @IBOutlet weak var mapView: MKMapView!
@@ -48,11 +48,29 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         super.viewDidLoad()
         initalizeArray()
         
+        var newImageArray = [Photo(context: dataController.viewContext)]
         
         collectionView.dataSource = self
         collectionView.delegate = self
         
         var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "pin == %@", passedPin)
+        fetchRequest.predicate = predicate
+        fetchRequest.sortDescriptors = []
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("no fetchy")
+        }
+        
+        
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            print("result: \(result)")
+            photosArray = result
+        }
         
         print("Photos VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
         
@@ -64,14 +82,24 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
-//                print("photosUrls: \(photosUrls)")
                 self.photoStringArray = photosUrls
                 
+                // TODO: convert to data with this here, and only convert to image when needed for the collection view
                 for photo in self.photoStringArray {
+                    
                     self.withBigImage(urlString: photo, completion: { (image) in
-                        self.imageArray.append(image)
+//                        self.imageArray.append(image)
+                        let newPhoto = Photo(context: self.dataController.viewContext)
+                        newPhoto.url = photo
+                        newPhoto.image = UIImage.pngData(image)()
+                        do {
+                            self.photosArray.append(newPhoto)
+                            self.imageArray.append(image)
+                            try self.dataController.viewContext.save()
+                        } catch {
+                            print("no")
+                        }
                         self.collectionView.reloadData()
-                        print("imagearray: \(self.imageArray)")
                     })
                 }
                 
@@ -79,42 +107,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("error in call")
             }
         }
-        setupFetchedResultsController()
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        setupFetchedResultsController()
-    }
-    
-
-}
-
-extension PhotosViewController: MKMapViewDelegate {
-    
-    func centerMapOnLocation(location: CLLocation) {
-        let regionRadius: CLLocationDistance = 1000000
-        let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
-                                                  latitudinalMeters: regionRadius,
-                                                  longitudinalMeters: regionRadius)
-        mapView.setRegion(coordinateRegion, animated: true)
-    }
-    
-    func initalizeArray() {
-        var passedPinLat = passedPin.latitude
-        var passedPinLong = passedPin.longitude
-        var annotations = [MKPointAnnotation]()
-        let lat = CLLocationDegrees(passedPinLat)
-        let long = CLLocationDegrees(passedPinLong)
-        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = coordinate
-        annotations.append(annotation)
-        self.mapView.addAnnotations(annotations)
-        let initialLocation = CLLocation(latitude: lat, longitude: long)
-        centerMapOnLocation(location: initialLocation)
         
     }
     
@@ -135,14 +132,17 @@ extension PhotosViewController: MKMapViewDelegate {
         }
     }
     
-    
+
 }
+
+//MARK: - Collection view Functions
+
 
 extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(imageArray.count)
-        return imageArray.count
+        print(photosArray.count)
+        return photosArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -150,20 +150,42 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-//        for i in photoStringArray{
-//            let photo = self.photoStringArray[indexPath.row]
-//            self.withBigImage(urlString: photo) { (image) in
-//                cell.imageView.image = image
-//            }
-//        }
-//
-        
-        
-        
         cell.imageView.image = imageArray[indexPath.row]
-        
         
         return cell
     }
-
+    
 }
+
+// MARK: - Map functions
+
+extension PhotosViewController: MKMapViewDelegate {
+    
+    func centerMapOnLocation(location: CLLocation) {
+        let regionRadius: CLLocationDistance = 1000000
+        let coordinateRegion = MKCoordinateRegion(center: location.coordinate,
+                                                  latitudinalMeters: regionRadius,
+                                                  longitudinalMeters: regionRadius)
+        mapView.setRegion(coordinateRegion, animated: true)
+    }
+    
+    
+    func initalizeArray() {
+        var passedPinLat = passedPin.latitude
+        var passedPinLong = passedPin.longitude
+        var annotations = [MKPointAnnotation]()
+        let lat = CLLocationDegrees(passedPinLat)
+        let long = CLLocationDegrees(passedPinLong)
+        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = coordinate
+        annotations.append(annotation)
+        self.mapView.addAnnotations(annotations)
+        let initialLocation = CLLocation(latitude: lat, longitude: long)
+        centerMapOnLocation(location: initialLocation)
+        
+    }
+    
+}
+
+
