@@ -130,7 +130,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-        cell.imageView.image = imageArray[indexPath.row]
+        cell.imageView.image = photosArray[indexPath.row]
         
         return cell
     }
