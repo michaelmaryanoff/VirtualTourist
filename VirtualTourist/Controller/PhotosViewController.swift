@@ -38,87 +38,120 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         setupFetchedResultsController()
         
-        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        
-        if photosArray.isEmpty {
             FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
                 //            if success {
                 
-                guard let photosUrls = photoUrls else {
+                guard let photoUrls = photoUrls else {
+                    print("No photos!")
                     return
                 }
                 
-                for individualPhoto in photosUrls {
-                    var newPhoto = Photo(context: self.dataController.viewContext)
-                    newPhoto.url = individualPhoto
-                    self.urlToImage(urlString: individualPhoto, completion: { (data) in
-                        newPhoto.image = data
-                        self.photosArray.append(newPhoto)
-                        print(self.photosArray)
-                        do {
-                            try self.dataController.viewContext.save()
-                        } catch {
-                            print("not gonna happen chief")
-                        }
-                    })
-                }
+                self.photoStringArray = photoUrls
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
                 
                 
-               
+//                for individualPhoto in photoUrls {
+//                    var newPhoto = Photo(context: self.dataController.viewContext)
+//                    newPhoto.url = individualPhoto
+//                    self.urlToImage(urlString: individualPhoto, completion: { (data) in
+//                        newPhoto.image = data
+//                        self.photosArray.append(newPhoto)
+//                        print(self.photosArray)
+//                        do {
+//                            try self.dataController.viewContext.save()
+//                        } catch {
+//                            print("not gonna happen chief")
+//                        }
+//                    })
+//                }
+//                DispatchQueue.main.async {
+//                    self.collectionView.reloadData()
+//                }
+                
+                
+                
                 print("if called: \(self.photosArray)")
                 
             }
-        } else {
             
-            print("else called: \(photosArray)")
+    
         
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        
+//        if photosArray.isEmpty {
+//
+//        } else {
+//
+//            print("else called: \(photosArray)")
+//
+//        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+//
+//            for photo in result {
+//
+//                self.urlToImage(urlString: photo.url!, completion: { (data) in
+//
+//                    let newPhoto = Photo(context: self.dataController.viewContext)
+//                    newPhoto.url = photo.url!
+//                    newPhoto.image = data
+//                    newPhoto.pin = self.passedPin
+//                    self.photosArray.append(newPhoto)
+//                    self.photoStringArray.append(newPhoto.url!)
+//                    self.imageArray.append(UIImage(data: data)!)
+//                    print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+//                    do {
+//                        try self.dataController.viewContext.save()
+//                    } catch {
+//                        print("not happening")
+//                    }
+//
+//                })
+//                print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+//                do {
+//                    try self.dataController.viewContext.save()
+//                } catch {
+//                    print("not happening")
+//                }
+//
+//                DispatchQueue.main.async {
+//                    self.collectionView.reloadData()
+//                }
+//
+//            }
+//            DispatchQueue.main.async {
+//                self.collectionView.reloadData()
+//            }
+//
+//        }
+//
+//    }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
+            //            if success {
             
-            for photo in result {
-                
-                self.urlToImage(urlString: photo.url!, completion: { (data) in
-                    
-                    let newPhoto = Photo(context: self.dataController.viewContext)
-                    newPhoto.url = photo.url!
-                    newPhoto.image = data
-                    newPhoto.pin = self.passedPin
-                    self.photosArray.append(newPhoto)
-                    self.photoStringArray.append(newPhoto.url!)
-                    self.imageArray.append(UIImage(data: data)!)
-                    print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
-                    do {
-                        try self.dataController.viewContext.save()
-                    } catch {
-                        print("not happening")
-                    }
-                    
-                })
-                print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
-                do {
-                    try self.dataController.viewContext.save()
-                } catch {
-                    print("not happening")
-                }
-                
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-                
+            guard let photoUrls = photoUrls else {
+                print("No photos!")
+                return
             }
+            
+            self.photoStringArray = photoUrls
+            
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
             }
             
+            
+            
+            print("if called: \(self.photosArray)")
+            
         }
         
     }
-    }
-        
-        
-    
     
     fileprivate func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
@@ -129,16 +162,15 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
         
         do {
-            try fetchedResultsController.performFetch()
+            let result = try dataController.viewContext.fetch(fetchRequest)
+            
+            photosArray = result
+
         } catch {
             print("no fetchy")
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-    }
     
     func urlToImage(urlString: String, completion: @escaping (_ data: Data) -> Void){
         
@@ -175,11 +207,12 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-//        cell.imageView.image = UIImage(data: photosArray[indexPath.row].image!)
+//        let imageData = photosArray[indexPath.row]
         
         if let imageData = photosArray[indexPath.row].image {
             cell.imageView.image = UIImage.init(data: imageData)
         }
+        
         
         return cell
     }
