@@ -17,7 +17,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var passedPin: Pin!
     
-    var photoStringArray = [String]()
+    var photoStringArray: [String] = []
     var photosArray: [Photo] = []
     var imageArray: [UIImage] = []
     
@@ -29,31 +29,30 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         initalizeArray()
         
-        collectionView.dataSource = self
-        collectionView.delegate = self
+        self.collectionView.dataSource = self
+        self.collectionView.delegate = self
+        mapView.delegate = self
         
         var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = []
-        
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+//
+//        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
         
         do {
-            try fetchedResultsController.performFetch()
-            if let result = try? dataController.viewContext.fetch(fetchRequest) {
-                print("result: \(result)")
-                photosArray = result
-            }
+//            try fetchedResultsController.performFetch()
+            let result = try dataController.viewContext.fetch(fetchRequest)
+            
+            photosArray = result
+            
+            print("result: \(result)")
+            
         } catch {
             print("no fetchy")
         }
-        
-        
-        
         
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             if success {
@@ -62,26 +61,37 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
-                self.photoStringArray = photosUrls
+                var stringArray = photosUrls
                 
-                for photo in self.photoStringArray {
+                for photo in stringArray {
                     
-                    self.withBigImage(urlString: photo, completion: { (image) in
+                    self.urlToImage(urlString: photo, completion: { (data) in
 
                         let newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photo
-                        newPhoto.image = UIImage.pngData(image)()
-                        
+                        newPhoto.image = data
+                        newPhoto.pin = self.passedPin
                         do {
                             self.photosArray.append(newPhoto)
-                            self.imageArray.append(image)
+                            self.photoStringArray.append(newPhoto.url!)
+                            // self.imageArray.append(image)
                             try self.dataController.viewContext.save()
+                            
+                            print(self.photosArray)
                         } catch {
                             print("no")
                         }
-                        self.collectionView.reloadData()
+                        
                     })
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                    
                 }
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+                
                 
             } else {
                 print("error in call")
@@ -95,18 +105,18 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
     }
     
-    func withBigImage(urlString: String, completion: @escaping (_ image: UIImage) -> Void){
+    func urlToImage(urlString: String, completion: @escaping (_ data: Data) -> Void){
         
         DispatchQueue.global(qos: .userInitiated).async { () -> Void in
             
             // get the url
             // get the NSData
             // turn it into a UIImage
-            if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url), let img = UIImage(data: imgData) {
+            if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url) {
                 // run the completion block
                 // always in the main queue, just in case!
                 DispatchQueue.main.async(execute: { () -> Void in
-                    completion(img)
+                    completion(imgData)
                 })
             }
         }
@@ -121,7 +131,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
 extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        print(photosArray.count)
         return photosArray.count
     }
     
@@ -130,7 +139,11 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-        cell.imageView.image = photosArray[indexPath.row]
+//        cell.imageView.image = imageArray[indexPath.row]
+        
+        if let imageData = photosArray[indexPath.row].image {
+            cell.imageView.image = UIImage.init(data: imageData)
+        }
         
         return cell
     }

@@ -21,7 +21,7 @@ class FlikrClient {
     }
     
     func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, [String]?, Error?) -> Void) {
-        var url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&format=json" + "&nojsoncallback=1"
+        var url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=4" + "&format=json" + "&nojsoncallback=1"
         var tmpUrl = "https://jsonplaceholder.typicode.com/photos"
         var request = URLRequest(url: URL(string: url)!)
         
