@@ -40,17 +40,51 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         
+        if photosArray.isEmpty {
+            FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
+                //            if success {
+                
+                guard let photosUrls = photoUrls else {
+                    return
+                }
+                
+                for individualPhoto in photosUrls {
+                    var newPhoto = Photo(context: self.dataController.viewContext)
+                    newPhoto.url = individualPhoto
+                    self.urlToImage(urlString: individualPhoto, completion: { (data) in
+                        newPhoto.image = data
+                        self.photosArray.append(newPhoto)
+                        print(self.photosArray)
+                        do {
+                            try self.dataController.viewContext.save()
+                        } catch {
+                            print("not gonna happen chief")
+                        }
+                    })
+                }
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+                
+                
+               
+                print("if called: \(self.photosArray)")
+                
+            }
+        } else {
+            
+            print("else called: \(photosArray)")
+        
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
-            for photo in photoStringArray {
+            for photo in result {
                 
-                self.urlToImage(urlString: photo, completion: { (data) in
+                self.urlToImage(urlString: photo.url!, completion: { (data) in
                     
                     let newPhoto = Photo(context: self.dataController.viewContext)
-                    newPhoto.url = photo
+                    newPhoto.url = photo.url!
                     newPhoto.image = data
                     newPhoto.pin = self.passedPin
-                    self.photosArray.append(newPhoto)
                     self.photosArray.append(newPhoto)
                     self.photoStringArray.append(newPhoto.url!)
                     self.imageArray.append(UIImage(data: data)!)
@@ -74,66 +108,20 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 }
                 
             }
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
             
         }
         
-        
-        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
-            if success {
-                
-                guard let photosUrls = photoUrls else {
-                    return
-                }
-                
-                var newPhotosArray = [Photo]()
-                var stringArray = photosUrls
-                
-                for photo in stringArray {
-                    
-                    self.urlToImage(urlString: photo, completion: { (data) in
-
-                        let newPhoto = Photo(context: self.dataController.viewContext)
-                        newPhoto.url = photo
-                        newPhoto.image = data
-                        newPhoto.pin = self.passedPin
-                        self.photosArray.append(newPhoto)
-                        newPhotosArray.append(newPhoto)
-                        self.photoStringArray.append(newPhoto.url!)
-                        
-                        print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
-                        do {
-                            try self.dataController.viewContext.save()
-                        } catch {
-                            print("not happening")
-                        }
-                        
-                    })
-                    print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
-                    do {
-                    try self.dataController.viewContext.save()
-                    } catch {
-                        print("not happening")
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
-                    
-                }
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-                
-                
-            } else {
-                print("error in call")
-            }
-        }
-        
     }
+    }
+        
+        
+    
     
     fileprivate func setupFetchedResultsController() {
-        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = []
@@ -164,6 +152,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 // always in the main queue, just in case!
                 DispatchQueue.main.async(execute: { () -> Void in
                     completion(imgData)
+                    print(imgData)
                 })
             }
         }
@@ -186,7 +175,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-        cell.imageView.image = imageArray[indexPath.row]
+//        cell.imageView.image = UIImage(data: photosArray[indexPath.row].image!)
         
         if let imageData = photosArray[indexPath.row].image {
             cell.imageView.image = UIImage.init(data: imageData)
@@ -211,8 +200,8 @@ extension PhotosViewController: MKMapViewDelegate {
     
     
     func initalizeArray() {
-        var passedPinLat = passedPin.latitude
-        var passedPinLong = passedPin.longitude
+        let passedPinLat = passedPin.latitude
+        let passedPinLong = passedPin.longitude
         var annotations = [MKPointAnnotation]()
         let lat = CLLocationDegrees(passedPinLat)
         let long = CLLocationDegrees(passedPinLong)
