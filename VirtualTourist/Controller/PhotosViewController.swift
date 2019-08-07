@@ -26,20 +26,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    fileprivate func setupFetchedResultsController() {
-        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == %@", passedPin)
-        fetchRequest.predicate = predicate
-        fetchRequest.sortDescriptors = []
-        
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
-        
-        do {
-            try fetchedResultsController.performFetch()
-        } catch {
-            print("no fetchy")
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,8 +42,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
-            print("result is: \(result)")
-            
             for photo in photoStringArray {
                 
                 self.urlToImage(urlString: photo, completion: { (data) in
@@ -69,7 +53,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     self.photosArray.append(newPhoto)
                     self.photosArray.append(newPhoto)
                     self.photoStringArray.append(newPhoto.url!)
-                    
+                    self.imageArray.append(UIImage(data: data)!)
                     print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
                     do {
                         try self.dataController.viewContext.save()
@@ -148,6 +132,21 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
     }
     
+    fileprivate func setupFetchedResultsController() {
+        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "pin == %@", passedPin)
+        fetchRequest.predicate = predicate
+        fetchRequest.sortDescriptors = []
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("no fetchy")
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -187,7 +186,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-//        cell.imageView.image = imageArray[indexPath.row]
+        cell.imageView.image = imageArray[indexPath.row]
         
         if let imageData = photosArray[indexPath.row].image {
             cell.imageView.image = UIImage.init(data: imageData)
