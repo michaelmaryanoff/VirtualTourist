@@ -21,6 +21,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     var photosArray: [Photo] = []
     var imageArray: [UIImage] = []
     
+    var numberOfLoops = 0
+    
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     
     @IBOutlet weak var mapView: MKMapView!
@@ -28,6 +30,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     
     fileprivate func setupFetchedResultsController() {
+        
         var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
         fetchRequest.predicate = predicate
@@ -45,6 +48,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if photoStringArray.isEmpty && photosArray.isEmpty && imageArray.isEmpty {
+            print("emptyboi")
+        } else {
+            print("There is no empties bro")
+        }
+        
         initalizeArray()
         
         self.collectionView.dataSource = self
@@ -57,39 +66,48 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
-            print("result is: \(result)")
+            photosArray = result
             
-            for photo in photoStringArray {
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
+            
+            
+            for photo in photosArray {
                 
-                self.urlToImage(urlString: photo, completion: { (data) in
+                self.numberOfLoops += 1
+                print("nubmerofloops: \(self.numberOfLoops)")
+
+                
+                self.urlToImage(urlString: photo.url!, completion: { (data) in
                     
                     let newPhoto = Photo(context: self.dataController.viewContext)
-                    newPhoto.url = photo
+                    newPhoto.url = photo.url!
                     newPhoto.image = data
                     newPhoto.pin = self.passedPin
                     self.photosArray.append(newPhoto)
-                    self.photosArray.append(newPhoto)
                     self.photoStringArray.append(newPhoto.url!)
-                    
-                    print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+                    self.imageArray.append(UIImage(data: newPhoto.image!)!)
                     do {
                         try self.dataController.viewContext.save()
                     } catch {
                         print("not happening")
                     }
-                    
+                   
                 })
-                print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+                print("Did the data controller change after do?: \(self.dataController.viewContext.hasChanges)")
                 do {
                     try self.dataController.viewContext.save()
                 } catch {
                     print("not happening")
                 }
-                
+
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
-                
+            }
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
             }
             
         }
@@ -97,16 +115,20 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             if success {
-                
+
                 guard let photosUrls = photoUrls else {
                     return
                 }
-                
+
                 var newPhotosArray = [Photo]()
                 var stringArray = photosUrls
-                
+
                 for photo in stringArray {
-                    
+
+
+                    self.numberOfLoops += 1
+                    print("nubmerofloops: \(self.numberOfLoops)")
+
                     self.urlToImage(urlString: photo, completion: { (data) in
 
                         let newPhoto = Photo(context: self.dataController.viewContext)
@@ -116,14 +138,14 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         self.photosArray.append(newPhoto)
                         newPhotosArray.append(newPhoto)
                         self.photoStringArray.append(newPhoto.url!)
-                        
+
                         print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
                         do {
                             try self.dataController.viewContext.save()
                         } catch {
                             print("not happening")
                         }
-                        
+
                     })
                     print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
                     do {
@@ -131,17 +153,17 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     } catch {
                         print("not happening")
                     }
-                    
+
                     DispatchQueue.main.async {
                         self.collectionView.reloadData()
                     }
-                    
+
                 }
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
-                
-                
+
+
             } else {
                 print("error in call")
             }
@@ -189,7 +211,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-//        let imageData = photosArray[indexPath.row]
+//        cell.imageView.image = imageArray[indexPath.row]
         
         if let imageData = photosArray[indexPath.row].image {
             cell.imageView.image = UIImage.init(data: imageData)
@@ -215,6 +237,7 @@ extension PhotosViewController: MKMapViewDelegate {
     
     
     func initalizeArray() {
+        print("\(#function) called")
         let passedPinLat = passedPin.latitude
         let passedPinLong = passedPin.longitude
         var annotations = [MKPointAnnotation]()
