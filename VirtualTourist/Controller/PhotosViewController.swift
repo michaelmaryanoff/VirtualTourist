@@ -26,6 +26,21 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     
+    fileprivate func setupFetchedResultsController() {
+        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "pin == %@", passedPin)
+        fetchRequest.predicate = predicate
+        fetchRequest.sortDescriptors = []
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("no fetchy")
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -35,24 +50,49 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         self.collectionView.delegate = self
         mapView.delegate = self
         
-        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == %@", passedPin)
-        fetchRequest.predicate = predicate
-        fetchRequest.sortDescriptors = []
-//
-//        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+        setupFetchedResultsController()
         
-        do {
-//            try fetchedResultsController.performFetch()
-            let result = try dataController.viewContext.fetch(fetchRequest)
+        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
-            photosArray = result
+            print("result is: \(result)")
             
-            print("result: \(result)")
+            for photo in photoStringArray {
+                
+                self.urlToImage(urlString: photo, completion: { (data) in
+                    
+                    let newPhoto = Photo(context: self.dataController.viewContext)
+                    newPhoto.url = photo
+                    newPhoto.image = data
+                    newPhoto.pin = self.passedPin
+                    self.photosArray.append(newPhoto)
+                    self.photosArray.append(newPhoto)
+                    self.photoStringArray.append(newPhoto.url!)
+                    
+                    print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+                    do {
+                        try self.dataController.viewContext.save()
+                    } catch {
+                        print("not happening")
+                    }
+                    
+                })
+                print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+                do {
+                    try self.dataController.viewContext.save()
+                } catch {
+                    print("not happening")
+                }
+                
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+                
+            }
             
-        } catch {
-            print("no fetchy")
         }
+        
         
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             if success {
@@ -61,6 +101,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
+                var newPhotosArray = [Photo]()
                 var stringArray = photosUrls
                 
                 for photo in stringArray {
@@ -71,18 +112,25 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         newPhoto.url = photo
                         newPhoto.image = data
                         newPhoto.pin = self.passedPin
+                        self.photosArray.append(newPhoto)
+                        newPhotosArray.append(newPhoto)
+                        self.photoStringArray.append(newPhoto.url!)
+                        
+                        print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
                         do {
-                            self.photosArray.append(newPhoto)
-                            self.photoStringArray.append(newPhoto.url!)
-                            // self.imageArray.append(image)
                             try self.dataController.viewContext.save()
-                            
-                            print(self.photosArray)
                         } catch {
-                            print("no")
+                            print("not happening")
                         }
                         
                     })
+                    print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+                    do {
+                    try self.dataController.viewContext.save()
+                    } catch {
+                        print("not happening")
+                    }
+                    
                     DispatchQueue.main.async {
                         self.collectionView.reloadData()
                     }
