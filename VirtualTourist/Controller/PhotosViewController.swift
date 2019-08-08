@@ -52,7 +52,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
 //        setupFetchedResultsController()
         
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == %@", passedPin)
+//        let predicate = NSPredicate(format: "pin == %@", self.passedPin)
+        let predicate = NSPredicate(format: "pin.latitude == %@", passedPin.latitude, "pin.latitude == %@", passedPin.latitude)
         fetchRequest.predicate = predicate
         
             if let result = try? dataController.viewContext.fetch(fetchRequest) {
@@ -114,7 +115,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
-                var newPhotosArray = [Photo]()
+                var newPhotosArray: [Photo] = []
                 var stringArray = photosUrls
                 
                 
@@ -122,10 +123,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         let newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photo
                         newPhoto.pin = self.passedPin
-                        self.photosArray.append(newPhoto)
                         newPhotosArray.append(newPhoto)
                         self.photosArray.append(newPhoto)
+                        self.photosArray.append(newPhoto)
                         self.photoStringArray.append(newPhoto.url!)
+                        self.photosArray = newPhotosArray
                         print(newPhotosArray)
                         do {
                             
@@ -137,6 +139,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         
                         
                     }
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
                 
                 
                 do {
@@ -204,8 +209,16 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
 //        cell.imageView.image = imageArray[indexPath.row]
         
-        if let imageData = photosArray[indexPath.row].image {
-            cell.imageView.image = UIImage.init(data: imageData)
+        if let urlString = photosArray[indexPath.row].url {
+            let url = URL(string: urlString)
+            
+            if let url = url {
+                let data = try? Data(contentsOf: url)
+                
+                if let data = data {
+                    cell.imageView.image = UIImage(data: data)
+                }
+            }
         }
         
         
