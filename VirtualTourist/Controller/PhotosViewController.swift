@@ -17,6 +17,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var passedPin: Pin!
     
+    var isFirstTimeLoading: Bool = false
     var photoStringArray: [String] = []
     var photosArray: [Photo] = []
     var imageArray: [UIImage] = []
@@ -28,6 +29,156 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     
+    
+
+    
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.collectionView.dataSource = self
+        self.collectionView.delegate = self
+        mapView.delegate = self
+        
+        initalizeArray()
+        
+        if photoStringArray.isEmpty && photosArray.isEmpty && imageArray.isEmpty {
+            self.isFirstTimeLoading = true
+        }
+        
+        if isFirstTimeLoading{
+            makeNetworkCall()
+        } else {
+//            setupFetchedResultsController()
+            
+            let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+            
+            if let result = try? dataController.viewContext.fetch(fetchRequest) {
+                
+                photosArray = result
+                
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+                
+                
+                for photo in photosArray {
+                    
+                    self.numberOfLoops += 1
+                    print("nubmerofloops: \(self.numberOfLoops)")
+                    
+                    
+                    self.urlToImage(urlString: photo.url!, completion: { (data) in
+                        
+                        let newPhoto = Photo(context: self.dataController.viewContext)
+                        newPhoto.url = photo.url!
+                        newPhoto.image = data
+                        newPhoto.pin = self.passedPin
+                        self.photosArray.append(newPhoto)
+                        self.photoStringArray.append(newPhoto.url!)
+                        self.imageArray.append(UIImage(data: newPhoto.image!)!)
+                        do {
+                            try self.dataController.viewContext.save()
+                        } catch {
+                            print("not happening")
+                        }
+                        
+                    })
+                    print("Did the data controller change after do?: \(self.dataController.viewContext.hasChanges)")
+                    do {
+                        try self.dataController.viewContext.save()
+                    } catch {
+                        print("not happening")
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                }
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+                
+            }
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        makeNetworkCall()
+        
+    }
+    
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+    }
+    
+    fileprivate func makeNetworkCall() {
+        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
+            if success {
+                
+                guard let photosUrls = photoUrls else {
+                    return
+                }
+                
+                var newPhotosArray = [Photo]()
+                var stringArray = photosUrls
+                
+                for photo in stringArray {
+                    
+                    
+                    self.numberOfLoops += 1
+                    print("nubmerofloops: \(self.numberOfLoops)")
+                    
+                    self.urlToImage(urlString: photo, completion: { (data) in
+                        
+                        let newPhoto = Photo(context: self.dataController.viewContext)
+                        newPhoto.url = photo
+                        newPhoto.image = data
+                        newPhoto.pin = self.passedPin
+                        self.photosArray.append(newPhoto)
+                        newPhotosArray.append(newPhoto)
+                        self.photoStringArray.append(newPhoto.url!)
+                        
+                        print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+                        do {
+                            try self.dataController.viewContext.save()
+                        } catch {
+                            print("not happening")
+                        }
+                        
+                    })
+                    print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
+                    do {
+                        try self.dataController.viewContext.save()
+                    } catch {
+                        print("not happening")
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                    
+                }
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+                
+                
+            } else {
+                print("error in call")
+            }
+        }
+    }
     
     fileprivate func setupFetchedResultsController() {
         
@@ -43,137 +194,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         } catch {
             print("no fetchy")
         }
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        if photoStringArray.isEmpty && photosArray.isEmpty && imageArray.isEmpty {
-            print("emptyboi")
-        } else {
-            print("There is no empties bro")
-        }
-        
-        initalizeArray()
-        
-        self.collectionView.dataSource = self
-        self.collectionView.delegate = self
-        mapView.delegate = self
-        
-        setupFetchedResultsController()
-        
-        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            
-            photosArray = result
-            
-            DispatchQueue.main.async {
-                self.collectionView.reloadData()
-            }
-            
-            
-            for photo in photosArray {
-                
-                self.numberOfLoops += 1
-                print("nubmerofloops: \(self.numberOfLoops)")
-
-                
-                self.urlToImage(urlString: photo.url!, completion: { (data) in
-                    
-                    let newPhoto = Photo(context: self.dataController.viewContext)
-                    newPhoto.url = photo.url!
-                    newPhoto.image = data
-                    newPhoto.pin = self.passedPin
-                    self.photosArray.append(newPhoto)
-                    self.photoStringArray.append(newPhoto.url!)
-                    self.imageArray.append(UIImage(data: newPhoto.image!)!)
-                    do {
-                        try self.dataController.viewContext.save()
-                    } catch {
-                        print("not happening")
-                    }
-                   
-                })
-                print("Did the data controller change after do?: \(self.dataController.viewContext.hasChanges)")
-                do {
-                    try self.dataController.viewContext.save()
-                } catch {
-                    print("not happening")
-                }
-
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-            }
-            DispatchQueue.main.async {
-                self.collectionView.reloadData()
-            }
-            
-        }
-        
-        
-        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
-            if success {
-
-                guard let photosUrls = photoUrls else {
-                    return
-                }
-
-                var newPhotosArray = [Photo]()
-                var stringArray = photosUrls
-
-                for photo in stringArray {
-
-
-                    self.numberOfLoops += 1
-                    print("nubmerofloops: \(self.numberOfLoops)")
-
-                    self.urlToImage(urlString: photo, completion: { (data) in
-
-                        let newPhoto = Photo(context: self.dataController.viewContext)
-                        newPhoto.url = photo
-                        newPhoto.image = data
-                        newPhoto.pin = self.passedPin
-                        self.photosArray.append(newPhoto)
-                        newPhotosArray.append(newPhoto)
-                        self.photoStringArray.append(newPhoto.url!)
-
-                        print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
-                        do {
-                            try self.dataController.viewContext.save()
-                        } catch {
-                            print("not happening")
-                        }
-
-                    })
-                    print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
-                    do {
-                    try self.dataController.viewContext.save()
-                    } catch {
-                        print("not happening")
-                    }
-
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
-
-                }
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-
-
-            } else {
-                print("error in call")
-            }
-        }
-        
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
     }
     
     func urlToImage(urlString: String, completion: @escaping (_ data: Data) -> Void){
