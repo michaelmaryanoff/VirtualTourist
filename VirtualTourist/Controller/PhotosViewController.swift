@@ -25,6 +25,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var imageArray: [UIImage] = []
     
+    
     var numberOfLoops = 0
     
     var fetchedResultsController:NSFetchedResultsController<Photo>!
@@ -35,6 +36,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        var globalLat = passedPin.latitude
+        var globalLong = passedPin.longitude
         print(passedPin)
         
         self.collectionView.dataSource = self
@@ -52,8 +55,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
 //        setupFetchedResultsController()
         
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-//        let predicate = NSPredicate(format: "pin == %@", self.passedPin)
-        let predicate = NSPredicate(format: "pin.latitude == %@", passedPin.latitude, "pin.latitude == %@", passedPin.latitude)
+        let predicate = NSPredicate(format: "pin == %@", passedPin)
+//        let predicate = NSPredicate(format: "pin.latitude == %@", globalLat, "pin.latitude == %@", globalLong)
         fetchRequest.predicate = predicate
         
             if let result = try? dataController.viewContext.fetch(fetchRequest) {
@@ -106,6 +109,18 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
 //        setupFetchedResultsController()
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        do {
+        try self.dataController.viewContext.save()
+            print("saved in ViewdidDissapear")
+        } catch {
+            print("could not save!")
+        }
+        
+    }
+    
     fileprivate func makeNetworkCall() {
         
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
@@ -122,6 +137,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     for photo in stringArray {
                         let newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photo
+                        newPhoto.pin?.latitude = self.passedPin.latitude
+                        newPhoto.pin?.longitude = self.passedPin.longitude
                         newPhoto.pin = self.passedPin
                         newPhotosArray.append(newPhoto)
                         self.photosArray.append(newPhoto)
@@ -144,11 +161,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 }
                 
                 
-                do {
-                    try self.dataController.viewContext.save()
-                } catch {
-                    print("not happening")
-                }
+//                do {
+//                    try self.dataController.viewContext.save()
+//                } catch {
+//                    print("not happening")
+//                }
             } else {
                 print("error in call")
             }
@@ -217,8 +234,15 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
                 
                 if let data = data {
                     cell.imageView.image = UIImage(data: data)
+                    
                 }
             }
+        }
+        
+        do {
+            try self.dataController.viewContext.save()
+        } catch {
+            print("could not save in colllection view")
         }
         
         

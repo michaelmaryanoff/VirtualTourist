@@ -59,13 +59,13 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
             
             
         }
-        setupFetchedResultsController()
+//        setupFetchedResultsController()
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupFetchedResultsController()
+//        setupFetchedResultsController()
         
     }
 
