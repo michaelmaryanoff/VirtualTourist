@@ -29,11 +29,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    
-
-    
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -41,16 +36,18 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         self.collectionView.delegate = self
         mapView.delegate = self
         
+        print(photoStringArray)
+        print(photosArray)
+        
         initalizeArray()
         
         if photoStringArray.isEmpty && photosArray.isEmpty && imageArray.isEmpty {
-            self.isFirstTimeLoading = true
-        }
+            
         
-        if isFirstTimeLoading{
             makeNetworkCall()
+            
         } else {
-//            setupFetchedResultsController()
+            setupFetchedResultsController()
             
             let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
             
@@ -86,36 +83,24 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         
                     })
                     print("Did the data controller change after do?: \(self.dataController.viewContext.hasChanges)")
-                    do {
-                        try self.dataController.viewContext.save()
-                    } catch {
-                        print("not happening")
-                    }
-                    
+//                    do {
+//                        try self.dataController.viewContext.save()
+//                    } catch {
+//                        print("not happening")
+//                    }
+//
                     DispatchQueue.main.async {
                         self.collectionView.reloadData()
                     }
                 }
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
                 
             }
         }
+    
         
         
-        
-        
-        
-        
-        
-        
-        
-        makeNetworkCall()
         
     }
-    
-    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -130,10 +115,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
-                var newPhotosArray = [Photo]()
-                var stringArray = photosUrls
+                self.photoStringArray = photosUrls
                 
-                for photo in stringArray {
+                for photo in self.photoStringArray {
                     
                     
                     self.numberOfLoops += 1
@@ -143,18 +127,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         
                         let newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photo
-                        newPhoto.image = data
+//                      newPhoto.image = data
                         newPhoto.pin = self.passedPin
                         self.photosArray.append(newPhoto)
-                        newPhotosArray.append(newPhoto)
-                        self.photoStringArray.append(newPhoto.url!)
+                        print(self.photosArray)
                         
-                        print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
-                        do {
-                            try self.dataController.viewContext.save()
-                        } catch {
-                            print("not happening")
-                        }
                         
                     })
                     print("Did the data controller change? \(self.dataController.viewContext.hasChanges)")
@@ -164,16 +141,10 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         print("not happening")
                     }
                     
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
-                    
                 }
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
-                
-                
             } else {
                 print("error in call")
             }
@@ -208,7 +179,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 // always in the main queue, just in case!
                 DispatchQueue.main.async(execute: { () -> Void in
                     completion(imgData)
-                    print(imgData)
+                    print("imgData: \(imgData)")
                 })
             }
         }
