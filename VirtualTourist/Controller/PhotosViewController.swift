@@ -35,11 +35,13 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print(passedPin)
+        
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         mapView.delegate = self
         
-        setupFetchedResultsController()
+//        setupFetchedResultsController()
         
         print(photoStringArray)
         print(photosArray)
@@ -47,12 +49,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         initalizeArray()
         
         
-        setupFetchedResultsController()
-        
-        
+//        setupFetchedResultsController()
         
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == @%", passedPin)
+        let predicate = NSPredicate(format: "pin == %@", passedPin)
+        fetchRequest.predicate = predicate
         
             if let result = try? dataController.viewContext.fetch(fetchRequest) {
                 
@@ -61,7 +62,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("newPhotosArry: \(photosArray)")
             
                 for photo in photoStringArray {
-
 
                     self.urlToImage(urlString: photo, completion: { (data) in
 
@@ -78,31 +78,37 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         }
 
                     })
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                        return
+                    }
                     do {
                         try self.dataController.viewContext.save()
                     } catch {
                         print("not happening")
                     }
                     
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
+                   
 
 
                 }
                 
             }
-        makeNetworkCall()
+        print(photosArray)
         
+        makeNetworkCall()
+        print(photosArray)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupFetchedResultsController()
+//        setupFetchedResultsController()
     }
     
     fileprivate func makeNetworkCall() {
+        
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
+            print("made network call")
             if success {
                 guard let photosUrls = photoUrls else {
                     return
@@ -112,16 +118,17 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 var stringArray = photosUrls
                 
                 
-                    for photo in self.photoStringArray {
-                        
+                    for photo in stringArray {
+                        let newPhoto = Photo(context: self.dataController.viewContext)
+                        newPhoto.url = photo
+                        newPhoto.pin = self.passedPin
+                        self.photosArray.append(newPhoto)
+                        newPhotosArray.append(newPhoto)
+                        self.photosArray.append(newPhoto)
+                        self.photoStringArray.append(newPhoto.url!)
+                        print(newPhotosArray)
                         do {
-                            let newPhoto = Photo(context: self.dataController.viewContext)
-                            newPhoto.url = photo
-                            newPhoto.pin = self.passedPin
-                            self.photosArray.append(newPhoto)
-                            newPhotosArray.append(newPhoto)
-                            self.photosArray.append(newPhoto)
-                            self.photoStringArray.append(newPhoto.url!)
+                            
                             print("new photos array: \(self.photosArray)")
                             try self.dataController.viewContext.save()
                         } catch {
@@ -142,23 +149,23 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             }
         }
     }
-    
-    fileprivate func setupFetchedResultsController() {
-        
-        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == %@", passedPin)
-        fetchRequest.predicate = predicate
-        fetchRequest.sortDescriptors = []
-        
-        self.fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
-        
-        do {
-            try fetchedResultsController.performFetch()
-            print("has been fetched")
-        } catch {
-            print("no fetchy")
-        }
-    }
+//
+//    fileprivate func setupFetchedResultsController() {
+//
+//        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+//        let predicate = NSPredicate(format: "pin == %@", passedPin)
+//        fetchRequest.predicate = predicate
+//        fetchRequest.sortDescriptors = []
+//
+//        self.fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+//
+//        do {
+//            try fetchedResultsController.performFetch()
+//            print("has been fetched")
+//        } catch {
+//            print("no fetchy")
+//        }
+//    }
     
     func urlToImage(urlString: String, completion: @escaping (_ data: Data) -> Void){
         
