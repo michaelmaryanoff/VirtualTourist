@@ -40,6 +40,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
         mapView.delegate = self
         
         let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(sender:)))
@@ -48,35 +49,27 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            print("Pin result: \(result)")
+            
+            pinArray = result
             
             for pin in result {
-                var fetchedPin = Pin(context: dataController.viewContext)
-                fetchedPin.latitude = pin.latitude
-                fetchedPin.longitude = pin.longitude
+                
                 var loadedAnnotation = MKPointAnnotation()
                 let lat = pin.latitude
                 let long = pin.longitude
                 let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
                 loadedAnnotation.coordinate = coordinate
                 annotations.append(loadedAnnotation)
-                pinArray.append(fetchedPin)
                 mapView.addAnnotation(loadedAnnotation)
-            }
-            do {
-                try dataController.viewContext.save()
-                print("Pin array: \(pinArray)")
-            } catch {
-                print("68 catch")
             }
             
         }
-//        setupFetchedResultsController()
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        setupFetchedResultsController()
         
     }
 

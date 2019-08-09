@@ -21,9 +21,8 @@ class FlikrClient {
     }
     
     func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, [String]?, Error?) -> Void) {
-        var url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=4" + "&format=json" + "&nojsoncallback=1"
-        var tmpUrl = "https://jsonplaceholder.typicode.com/photos"
-        var request = URLRequest(url: URL(string: url)!)
+        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=4" + "&format=json" + "&nojsoncallback=1"
+        let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
 //            print(url)

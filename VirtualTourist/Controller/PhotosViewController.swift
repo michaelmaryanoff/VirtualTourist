@@ -32,22 +32,23 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var newCollection: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print("raw pin dat: \(passedPin)")
         
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         mapView.delegate = self
+        
         initalizeAnnotationsArray()
         
-        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == %@", passedPin)
-
-        fetchRequest.predicate = predicate
-        
+        func retrievePhotos() {
+            let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+            let predicate = NSPredicate(format: "pin == %@", passedPin)
+            fetchRequest.predicate = predicate
+            
             if let result = try? dataController.viewContext.fetch(fetchRequest) {
                 
                 print("here are the results: \(result)")
@@ -57,7 +58,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 photosArray = result
                 
                 for photo in result {
-
+                    
                     DispatchQueue.main.async {
                         self.collectionView.reloadData()
                         return
@@ -65,14 +66,17 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 }
                 
             }
+            
+        }
+        retrievePhotos()
         
-//        makeNetworkCall()
+        
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        setupFetchedResultsController()
+
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -85,6 +89,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             print("could not save!")
         }
         
+    }
+    
+    
+    @IBAction func loadNewCollection(_ sender: Any) {
+        makeNetworkCall()
     }
     
     fileprivate func makeNetworkCall() {
