@@ -43,6 +43,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         mapView.delegate = self
         initalizeArray()
         
+        if photosArray == [] {
+            makeNetworkCall()
+        } else {
+            
+        
+        
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
 
@@ -50,45 +56,21 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
             if let result = try? dataController.viewContext.fetch(fetchRequest) {
                 
+                print("here are the results: \(result)")
                 photosArray = result
+                
             
-                for photo in photoStringArray {
+                for photo in result {
 
-                    self.urlToData(urlString: photo, completion: { (data) in
-
-                        let newPhoto = Photo(context: self.dataController.viewContext)
-                        newPhoto.url = photo
-                        
-                        // Should this not be what is there
-                        newPhoto.image = data
-                        newPhoto.pin = self.passedPin
-                        self.photosArray.append(newPhoto)
-                        self.photoStringArray.append(newPhoto.url!)
-                        do {
-                            try self.dataController.viewContext.save()
-                        } catch {
-                            print("not happening")
-                        }
-
-                    })
                     DispatchQueue.main.async {
                         self.collectionView.reloadData()
                         return
                     }
-                    do {
-                        try self.dataController.viewContext.save()
-                    } catch {
-                        print("not happening")
-                    }
-                    
-                   
-
-
                 }
                 
             }
         
-        makeNetworkCall()
+        }
         
     }
     
