@@ -128,28 +128,26 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 
                     for photo in stringArray {
                         
-                        let newPhoto = Photo(context: self.dataController.viewContext)
                         
                         
+                        self.urlToData(urlString: photo, completion: { (data) in
+                            
+                            let newPhoto = Photo(context: self.dataController.viewContext)
+                            newPhoto.url = photo
+                            newPhoto.pin?.latitude = self.passedPin.latitude
+                            newPhoto.pin?.longitude = self.passedPin.longitude
+                            newPhoto.pin = self.passedPin
+                            print("urlToData")
+                            newPhoto.image = data
+                            print("data \(data)")
+                            newPhotosArray.append(newPhoto)
+                            self.photosArray.append(newPhoto)
+                            self.photoStringArray.append(newPhoto.url!)
+                            self.photosArray = newPhotosArray
+                        })
                         
-                        
-                        newPhoto.url = photo
-                        newPhoto.pin?.latitude = self.passedPin.latitude
-                        newPhoto.pin?.longitude = self.passedPin.longitude
-                        newPhoto.pin = self.passedPin
-                        newPhotosArray.append(newPhoto)
-                        self.photosArray.append(newPhoto)
-                        self.photosArray.append(newPhoto)
-                        self.photoStringArray.append(newPhoto.url!)
-//                        self.urlToData(urlString: photo, completion: { (data) in
-//                            print("urlToData")
-//                            newPhoto.image = data
-//                            print("data \(data)")
-//                        })
-                        self.photosArray = newPhotosArray
-                        print(newPhotosArray)
                         do {
-                            print("new photos array: \(self.photosArray)")
+                            print("new photos array before saving: \(self.photosArray)")
                             try self.dataController.viewContext.save()
                         } catch {
                             print("not happening")
