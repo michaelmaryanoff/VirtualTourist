@@ -82,23 +82,39 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        do {
-        try self.dataController.viewContext.save()
-            print("saved in ViewdidDissapear")
-        } catch {
-            print("could not save!")
-        }
+//        do {
+//        try self.dataController.viewContext.save()
+//            print("saved in ViewdidDissapear")
+//        } catch {
+//            print("could not save!")
+//        }
         
     }
     
     
     @IBAction func loadNewCollection(_ sender: Any) {
+//        photosArray = []
+        newCollection.isEnabled = false
+        for photo in photosArray {
+            dataController.viewContext.delete(photo)
+            do {
+                try self.dataController.viewContext.save()
+            } catch {
+                print("could not delete these photos")
+            }
+        }
         makeNetworkCall()
+        
+        self.collectionView.reloadData()
+        newCollection.isEnabled = true
+        
     }
     
     fileprivate func makeNetworkCall() {
         
-        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
+        let rangomPage = Int.random(in: 0...300 )
+        
+        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude, page: rangomPage) { (success, photoUrls, error) in
             print("made network call")
             if success {
                 
@@ -209,11 +225,11 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
 //            }
 //        }
         
-        do {
-            try self.dataController.viewContext.save()
-        } catch {
-            print("could not save in colllection view")
-        }
+//        do {
+//            try self.dataController.viewContext.save()
+//        } catch {
+//            print("could not save in colllection view")
+//        }
         
         
         return cell

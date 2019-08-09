@@ -20,15 +20,15 @@ class FlikrClient {
         static let extras = "extras=url_h"
     }
     
-    func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, [String]?, Error?) -> Void) {
-        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=4" + "&format=json" + "&nojsoncallback=1"
+    func requestPhotos(lat: Double, long: Double, page: Int, completion: @escaping(Bool, [String]?, Error?) -> Void) {
+        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&page=\(page)" + "&format=json" + "&nojsoncallback=1"
         let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
 //            print(url)
             
             if error != nil {
-                print("error is not nil")
+                print("error is not nil: \(error!.localizedDescription)")
                 completion(false, [], error)
             }
             
@@ -36,6 +36,8 @@ class FlikrClient {
                 completion(false, [], error)
                 return
             }
+            
+            
             
 //            print(String(data: data, encoding: .utf8)!)
             do {
@@ -46,6 +48,8 @@ class FlikrClient {
                     print("guard 1")
                     return
                 }
+                
+                print("jsonDict: \(jsonDict)")
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")
