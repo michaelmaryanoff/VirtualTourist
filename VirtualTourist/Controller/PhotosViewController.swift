@@ -41,13 +41,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         mapView.delegate = self
-        initalizeArray()
-        
-        if photosArray == [] {
-            makeNetworkCall()
-        } else {
-            
-        
+        initalizeAnnotationsArray()
         
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
@@ -57,9 +51,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             if let result = try? dataController.viewContext.fetch(fetchRequest) {
                 
                 print("here are the results: \(result)")
+                if result.isEmpty {
+                    makeNetworkCall()
+                }
                 photosArray = result
                 
-            
                 for photo in result {
 
                     DispatchQueue.main.async {
@@ -70,7 +66,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 
             }
         
-        }
+//        makeNetworkCall()
         
     }
     
@@ -229,7 +225,7 @@ extension PhotosViewController: MKMapViewDelegate {
     }
     
     
-    func initalizeArray() {
+    func initalizeAnnotationsArray() {
         print("\(#function) called")
         let passedPinLat = passedPin.latitude
         let passedPinLong = passedPin.longitude
