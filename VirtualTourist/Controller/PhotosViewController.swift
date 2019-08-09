@@ -58,6 +58,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
 
                         let newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photo
+                        
+                        // Should this not be what is there
                         newPhoto.image = data
                         newPhoto.pin = self.passedPin
                         self.photosArray.append(newPhoto)
@@ -128,8 +130,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 
                     for photo in stringArray {
                         
-                        
-                        
                         self.urlToData(urlString: photo, completion: { (data) in
                             
                             let newPhoto = Photo(context: self.dataController.viewContext)
@@ -144,20 +144,18 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             self.photosArray.append(newPhoto)
                             self.photoStringArray.append(newPhoto.url!)
                             self.photosArray = newPhotosArray
+                            do {
+                                print("new photos array before saving: \(self.photosArray)")
+                                try self.dataController.viewContext.save()
+                            } catch {
+                                print("not happening")
+                            }
                         })
-                        
-                        do {
-                            print("new photos array before saving: \(self.photosArray)")
-                            try self.dataController.viewContext.save()
-                        } catch {
-                            print("not happening")
-                        }
                         
                     }
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
-                
                 
             // Deleted a do catch block here
             } else {
@@ -169,11 +167,13 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     func urlToData(urlString: String, completion: @escaping (_ data: Data) -> Void){
         
-        DispatchQueue.global(qos: .userInitiated).async { () -> Void in
+        DispatchQueue.global(qos: .background).async { () -> Void in
             
             if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url) {
                 
                 DispatchQueue.main.async(execute: { () -> Void in
+                    print("converted the data!")
+                    self.collectionView.reloadData()
                     completion(imgData)
                 })
             }
@@ -199,18 +199,28 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
 //        cell.imageView.image = imageArray[indexPath.row]
         
-        if let urlString = photosArray[indexPath.row].url {
-            let url = URL(string: urlString)
+        if let urlImage = photosArray[indexPath.row].image {
             
-            if let url = url {
-                let data = try? Data(contentsOf: url)
-                
-                if let data = data {
-                    cell.imageView.image = UIImage(data: data)
-                    
-                }
+            DispatchQueue.main.async {
+                cell.imageView.image = UIImage(data: urlImage)
+                self.collectionView.reloadData()
             }
+            
         }
+            
+        
+//        if let urlString = photosArray[indexPath.row].url {
+//            let url = URL(string: urlString)
+//
+//            if let url = url {
+//                let data = try? Data(contentsOf: url)
+//
+//                if let data = data {
+//                    cell.imageView.image = UIImage(data: data)
+//
+//                }
+//            }
+//        }
         
         do {
             try self.dataController.viewContext.save()
