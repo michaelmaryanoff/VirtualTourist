@@ -28,6 +28,11 @@ class FlikrClient {
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
 //            print(url)
             
+            if error != nil {
+                print("error is not nil")
+                completion(false, [], error)
+            }
+            
             guard let data = data else {
                 completion(false, [], error)
                 return

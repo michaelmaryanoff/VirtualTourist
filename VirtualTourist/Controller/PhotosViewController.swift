@@ -36,38 +36,25 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var globalLat = passedPin.latitude
-        var globalLong = passedPin.longitude
-        print(passedPin)
+        print("raw pin dat: \(passedPin)")
         
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         mapView.delegate = self
-        
-//        setupFetchedResultsController()
-        
-        print(photoStringArray)
-        print(photosArray)
-        
         initalizeArray()
-        
-        
-//        setupFetchedResultsController()
         
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
-//        let predicate = NSPredicate(format: "pin.latitude == %@", globalLat, "pin.latitude == %@", globalLong)
+
         fetchRequest.predicate = predicate
         
             if let result = try? dataController.viewContext.fetch(fetchRequest) {
                 
-                print("result \(result)")
                 photosArray = result
-                print("newPhotosArry: \(photosArray)")
             
                 for photo in photoStringArray {
 
-                    self.urlToImage(urlString: photo, completion: { (data) in
+                    self.urlToData(urlString: photo, completion: { (data) in
 
                         let newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photo
@@ -98,10 +85,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 }
                 
             }
-        print(photosArray)
         
         makeNetworkCall()
-        print(photosArray)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -126,6 +112,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             print("made network call")
             if success {
+                
+                if let error = error {
+                    print("This is the error: \(error.localizedDescription)")
+                    return
+                }
+                
                 guard let photosUrls = photoUrls else {
                     return
                 }
@@ -135,7 +127,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 
                 
                     for photo in stringArray {
+                        
                         let newPhoto = Photo(context: self.dataController.viewContext)
+                        
+                        
+                        
+                        
                         newPhoto.url = photo
                         newPhoto.pin?.latitude = self.passedPin.latitude
                         newPhoto.pin?.longitude = self.passedPin.longitude
@@ -144,16 +141,19 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         self.photosArray.append(newPhoto)
                         self.photosArray.append(newPhoto)
                         self.photoStringArray.append(newPhoto.url!)
+//                        self.urlToData(urlString: photo, completion: { (data) in
+//                            print("urlToData")
+//                            newPhoto.image = data
+//                            print("data \(data)")
+//                        })
                         self.photosArray = newPhotosArray
                         print(newPhotosArray)
                         do {
-                            
                             print("new photos array: \(self.photosArray)")
                             try self.dataController.viewContext.save()
                         } catch {
                             print("not happening")
                         }
-                        
                         
                     }
                 DispatchQueue.main.async {
@@ -161,47 +161,22 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 }
                 
                 
-//                do {
-//                    try self.dataController.viewContext.save()
-//                } catch {
-//                    print("not happening")
-//                }
+            // Deleted a do catch block here
             } else {
                 print("error in call")
             }
         }
     }
-//
-//    fileprivate func setupFetchedResultsController() {
-//
-//        var fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-//        let predicate = NSPredicate(format: "pin == %@", passedPin)
-//        fetchRequest.predicate = predicate
-//        fetchRequest.sortDescriptors = []
-//
-//        self.fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
-//
-//        do {
-//            try fetchedResultsController.performFetch()
-//            print("has been fetched")
-//        } catch {
-//            print("no fetchy")
-//        }
-//    }
+
     
-    func urlToImage(urlString: String, completion: @escaping (_ data: Data) -> Void){
+    func urlToData(urlString: String, completion: @escaping (_ data: Data) -> Void){
         
         DispatchQueue.global(qos: .userInitiated).async { () -> Void in
             
-            // get the url
-            // get the NSData
-            // turn it into a UIImage
             if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url) {
-                // run the completion block
-                // always in the main queue, just in case!
+                
                 DispatchQueue.main.async(execute: { () -> Void in
                     completion(imgData)
-                    print("imgData: \(imgData)")
                 })
             }
         }

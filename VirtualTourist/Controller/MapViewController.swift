@@ -19,6 +19,8 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     
     var annotations: [MKPointAnnotation] = []
     
+    var pinArray: [Pin] = []
+    
     var fetchedResultsController:NSFetchedResultsController<Pin>!
     
     fileprivate func setupFetchedResultsController() {
@@ -48,15 +50,24 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
             for pin in result {
+                var fetchedPin = Pin(context: dataController.viewContext)
+                fetchedPin.latitude = pin.latitude
+                fetchedPin.longitude = pin.longitude
                 var loadedAnnotation = MKPointAnnotation()
                 let lat = pin.latitude
                 let long = pin.longitude
                 let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
                 loadedAnnotation.coordinate = coordinate
                 annotations.append(loadedAnnotation)
+                pinArray.append(fetchedPin)
                 mapView.addAnnotation(loadedAnnotation)
             }
-            
+            do {
+                try dataController.viewContext.save()
+                print("Pin array: \(pinArray)")
+            } catch {
+                print("68 catch")
+            }
             
         }
 //        setupFetchedResultsController()
@@ -76,17 +87,22 @@ extension MapViewController: MKMapViewDelegate {
     
     @objc func addAnnotation(sender: UILongPressGestureRecognizer) {
         // Adapted from StackOverflow post
+        
+        // Translate touch into a CGPoint
         let recognizedPoint: CGPoint = sender.location(in: mapView)
         let recognizedCoordinate: CLLocationCoordinate2D = mapView.convert(recognizedPoint, toCoordinateFrom: mapView)
         
+        // Creates a new NSManagedObject based off of the tapped coordinate
         let newPin = Pin(context: dataController.viewContext)
         newPin.latitude = recognizedCoordinate.latitude
         newPin.longitude = recognizedCoordinate.longitude
+        
         do {
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
             var locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
             let geocoder = CLGeocoder()
+            
             geocoder.reverseGeocodeLocation(locationForGeocoding) { (placemarks, error) in
                 if error == nil {
                     if let placemark = placemarks?[0] {
@@ -99,6 +115,7 @@ extension MapViewController: MKMapViewDelegate {
                 }
             }
             annotations.append(annotation)
+            pinArray.append(newPin)
             mapView.addAnnotation(annotation)
             try dataController.viewContext.save()
         } catch {
@@ -109,24 +126,36 @@ extension MapViewController: MKMapViewDelegate {
     
 
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        
+        var checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)
+        var checkedLongitude = Double(view.annotation?.coordinate.longitude ?? 0)
+
+        
+        for pin in pinArray {
+            if pin.latitude == checkedLatitude && pin.longitude == checkedLongitude {
+                self.performSegue(withIdentifier: "presentPhotosCollection", sender: pin)
+                return
+            }
+        }
+//        print("Map VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
+        
+        
+    
+        
+    }
+    
+   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "presentPhotosCollection" {
             
             let destinationVC = segue.destination as! PhotosViewController
             
             destinationVC.passedPin = sender as! Pin
             destinationVC.dataController = dataController
-         
+            
         }
-    }
-    
-    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        var passedPin = Pin(context: dataController.viewContext)
-        passedPin.latitude = Double(view.annotation?.coordinate.latitude ?? 0)
-        passedPin.longitude = Double(view.annotation?.coordinate.longitude ?? 0)
-//        print("Map VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
-    
-        self.performSegue(withIdentifier: "presentPhotosCollection", sender: passedPin)
     }
     
 
