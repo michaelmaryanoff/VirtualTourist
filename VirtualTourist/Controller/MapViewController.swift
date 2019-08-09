@@ -22,39 +22,29 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     var pinArray: [Pin] = []
     
     var fetchedResultsController:NSFetchedResultsController<Pin>!
-    
-    fileprivate func setupFetchedResultsController() {
-        let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "latitude", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "pins")
-        fetchedResultsController.delegate = self
-        do {
-            try fetchedResultsController.performFetch()
-        } catch {
-            fatalError("The fetch could not be performed: \(error.localizedDescription)")
-        }
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
+        // Sets the map view delegate
         mapView.delegate = self
         
+        // Adds a gesture recognizers to the map
         let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(sender:)))
         mapView.addGestureRecognizer(longPressGestureRecognizer)
         
+        // Creates a fetch request
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
+        // Takes the results of the fetch request
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            print("Pin result: \(result)")
             
             pinArray = result
             
-            for pin in result {
+            // Loops through the new pin array
+            for pin in pinArray {
                 
+                // Creates a new annotation from the results array and adds to annotations
                 var loadedAnnotation = MKPointAnnotation()
                 let lat = pin.latitude
                 let long = pin.longitude
@@ -62,6 +52,8 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
                 loadedAnnotation.coordinate = coordinate
                 annotations.append(loadedAnnotation)
                 mapView.addAnnotation(loadedAnnotation)
+                
+                print("pinArray.count: \(pinArray.count)")
             }
             
         }
@@ -81,6 +73,8 @@ extension MapViewController: MKMapViewDelegate {
     @objc func addAnnotation(sender: UILongPressGestureRecognizer) {
         // Adapted from StackOverflow post
         
+        if sender.state == .began {
+        
         // Translate touch into a CGPoint
         let recognizedPoint: CGPoint = sender.location(in: mapView)
         let recognizedCoordinate: CLLocationCoordinate2D = mapView.convert(recognizedPoint, toCoordinateFrom: mapView)
@@ -90,42 +84,43 @@ extension MapViewController: MKMapViewDelegate {
         newPin.latitude = recognizedCoordinate.latitude
         newPin.longitude = recognizedCoordinate.longitude
         
-        do {
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
-            var locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
-            let geocoder = CLGeocoder()
-            
-            geocoder.reverseGeocodeLocation(locationForGeocoding) { (placemarks, error) in
-                if error == nil {
-                    if let placemark = placemarks?[0] {
-                        let location = placemark.location!
+        // Adds pin with relevant information to annotation array
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
+        var locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
+        
+        // Comes up with an place name and adds it to new pin
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(locationForGeocoding) { (placemarks, error) in
+            if error == nil {
+                if let placemark = placemarks?[0] {
+                    let location = placemark.location!
                     
-                        // Have some restrictions on locality
-                        var locationString = placemark.locality ?? "Could not determine locality"
-                        newPin.placeName = locationString
-                    }
+                    // Have some restrictions on locality
+                    var locationString = placemark.locality ?? "Could not determine locality"
+                    newPin.placeName = locationString
                 }
             }
-            annotations.append(annotation)
-            pinArray.append(newPin)
-            mapView.addAnnotation(annotation)
+        }
+        
+        // Appends to relevant arrays
+        annotations.append(annotation)
+        pinArray.append(newPin)
+        
+        
+        mapView.addAnnotation(annotation)
+        do {
             try dataController.viewContext.save()
         } catch {
             print("nope")
         }
-        
+        }
     }
-    
-
-    
-
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
         var checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)
         var checkedLongitude = Double(view.annotation?.coordinate.longitude ?? 0)
-
         
         for pin in pinArray {
             if pin.latitude == checkedLatitude && pin.longitude == checkedLongitude {
