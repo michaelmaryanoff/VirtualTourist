@@ -53,7 +53,7 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
                 annotations.append(loadedAnnotation)
                 mapView.addAnnotation(loadedAnnotation)
                 
-                print("pinArray.count: \(pinArray.count)")
+                
             }
             
         }
@@ -128,7 +128,6 @@ extension MapViewController: MKMapViewDelegate {
                 return
             }
         }
-//        print("Map VC passed pin is: \(passedPin.latitude), and \(passedPin.longitude)")
         
         
     

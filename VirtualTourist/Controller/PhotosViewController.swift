@@ -23,9 +23,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var photosArray: [Photo] = []
     
-    var imageArray: [UIImage] = []
-    
-    
     var numberOfLoops = 0
     
     var fetchedResultsController:NSFetchedResultsController<Photo>!
@@ -37,36 +34,13 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         mapView.delegate = self
         
         initalizeAnnotationsArray()
         
-        func retrievePhotos() {
-            let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-            let predicate = NSPredicate(format: "pin == %@", passedPin)
-            fetchRequest.predicate = predicate
-            
-            if let result = try? dataController.viewContext.fetch(fetchRequest) {
-                
-                if result.isEmpty {
-                    makeNetworkCall()
-                }
-                photosArray = result
-                
-                for photo in result {
-                    
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                        return
-                    }
-                }
-                
-            }
-            
-        }
+        
         retrievePhotos()
         
         
@@ -80,18 +54,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
-//        do {
-//        try self.dataController.viewContext.save()
-//            print("saved in ViewdidDissapear")
-//        } catch {
-//            print("could not save!")
-//        }
+        // TODO?     Try to save here?
         
     }
     
-    
-    @IBAction func loadNewCollection(_ sender: Any) {
+    @IBAction func loadNewCollection(_ sender: UIButton) {
+        self.generateNewCollectionButton.isEnabled = false
         for photo in photosArray {
             dataController.viewContext.delete(photo)
             do {
@@ -100,7 +68,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("could not delete these photos")
             }
         }
+        
         photosArray = []
+        photoStringArray = []
         makeNetworkCall()
         
         self.collectionView.reloadData()
@@ -108,12 +78,41 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
     }
     
+    func retrievePhotos() {
+        
+        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "pin == %@", passedPin)
+        fetchRequest.predicate = predicate
+        
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            
+            if result.isEmpty {
+                makeNetworkCall()
+            }
+            photosArray = result
+            
+            for photo in result {
+                
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                    
+                    return
+                }
+            }
+            
+            
+        }
+        
+        
+    }
+    
     fileprivate func makeNetworkCall() {
         
-        let rangomPage = Int.random(in: 0...300 )
+        let rangomPage = Int.random(in: 0...10 )
+        print("random page: \(rangomPage)")
         
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude, page: rangomPage) { (success, photoUrls, error) in
-            print("made network call")
+        
             if success {
                 
                 if let error = error {
@@ -126,8 +125,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 }
                 
                 var newPhotosArray: [Photo] = []
-                var stringArray = photosUrls
-                
+                let stringArray = photosUrls
                 
                     for photo in stringArray {
                         
@@ -138,24 +136,37 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             newPhoto.pin?.latitude = self.passedPin.latitude
                             newPhoto.pin?.longitude = self.passedPin.longitude
                             newPhoto.pin = self.passedPin
-                            print("urlToData")
                             newPhoto.image = data
-                            print("data \(data)")
                             newPhotosArray.append(newPhoto)
                             self.photosArray.append(newPhoto)
                             self.photoStringArray.append(newPhoto.url!)
                             self.photosArray = newPhotosArray
+                            print("Photostringarray.count \(self.photoStringArray.count)")
+                            print("Photourls.count \(photoUrls!.count)")
+                            
+                            if Int(self.photoStringArray.count) == Int(photosUrls.count) {
+                                print("arrays are equal")
+                                self.generateNewCollectionButton.isEnabled = true
+                            } else {
+                                self.generateNewCollectionButton.isEnabled = false
+                                print("arrays are not equal")
+                            }
                             do {
-                                print("new photos array before saving: \(self.photosArray)")
                                 try self.dataController.viewContext.save()
                             } catch {
                                 print("not happening")
                             }
                         })
                         
+                       
+                        
+                        
                     }
+                
                 DispatchQueue.main.async {
+                    
                     self.collectionView.reloadData()
+                    
                 }
                 
             // Deleted a do catch block here
@@ -194,41 +205,21 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
         let identifier = "customCell"
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
-        
-//        cell.imageView.image = imageArray[indexPath.row]
         
         if let urlImage = photosArray[indexPath.row].image {
             
             DispatchQueue.main.async {
                 cell.imageView.image = UIImage(data: urlImage)
                 self.collectionView.reloadData()
+                
             }
             
-        }
             
-        
-//        if let urlString = photosArray[indexPath.row].url {
-//            let url = URL(string: urlString)
-//
-//            if let url = url {
-//                let data = try? Data(contentsOf: url)
-//
-//                if let data = data {
-//                    cell.imageView.image = UIImage(data: data)
-//
-//                }
-//            }
-//        }
-        
-//        do {
-//            try self.dataController.viewContext.save()
-//        } catch {
-//            print("could not save in colllection view")
-//        }
-        
+        }
         
         return cell
     }

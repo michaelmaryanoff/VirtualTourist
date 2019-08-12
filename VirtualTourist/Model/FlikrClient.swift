@@ -25,7 +25,6 @@ class FlikrClient {
         let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-//            print(url)
             
             if error != nil {
                 print("error is not nil: \(error!.localizedDescription)")
@@ -37,33 +36,27 @@ class FlikrClient {
                 return
             }
             
-            
-            
-//            print(String(data: data, encoding: .utf8)!)
             do {
                 var stringArray = [String]()
                 var json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
                 
+                // TODO: pass number of pages, and pass through completion handler
                 guard let jsonDict = json as? [AnyHashable:Any] else {
                     print("guard 1")
                     return
                 }
                 
-                print("jsonDict: \(jsonDict)")
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")
                     return
                 }
-//                print(photos)
                 
                 
                 guard let photosArray = photos["photo"] as? [[String:Any]] else {
                     print("guard 3")
                     return
                 }
-                
-//                print("photosarray: \(photos)")
                 
                 
                 for photoItem in photosArray {
@@ -72,7 +65,6 @@ class FlikrClient {
                     }
                     
                 }
-//                print("stringarray: \(stringArray)")
                 
                 completion(true, stringArray, nil)
                 
@@ -89,6 +81,14 @@ class FlikrClient {
     func getUrl(fromJSON json: [String:Any]) -> String? {
         guard let urlString = json["url_h"] as? String else {
 //            print("could not get string")
+            return nil
+        }
+        return urlString
+    }
+    
+    func getNumberOfPages(fromJSON json: [String:Any]) -> String? {
+        guard let urlString = json["pages"] as? String else {
+            print("unable to get string")
             return nil
         }
         return urlString
