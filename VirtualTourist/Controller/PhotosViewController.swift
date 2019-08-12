@@ -32,7 +32,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var newCollection: UIButton!
+    @IBOutlet weak var generateNewCollectionButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,7 +51,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             
             if let result = try? dataController.viewContext.fetch(fetchRequest) {
                 
-                print("here are the results: \(result)")
                 if result.isEmpty {
                     makeNetworkCall()
                 }
@@ -93,8 +92,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     
     @IBAction func loadNewCollection(_ sender: Any) {
-//        photosArray = []
-        newCollection.isEnabled = false
         for photo in photosArray {
             dataController.viewContext.delete(photo)
             do {
@@ -103,10 +100,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("could not delete these photos")
             }
         }
+        photosArray = []
         makeNetworkCall()
         
         self.collectionView.reloadData()
-        newCollection.isEnabled = true
+        
         
     }
     
