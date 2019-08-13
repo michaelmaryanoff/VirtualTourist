@@ -39,11 +39,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         mapView.delegate = self
         
         initalizeAnnotationsArray()
-        
-        
         retrievePhotos()
-        
-        
         
     }
     
@@ -54,7 +50,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        // TODO?     Try to save here?
+        // TODO?
+        // Try to save here?
         
     }
     
@@ -111,7 +108,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         let rangomPage = Int.random(in: 0...10 )
         print("random page: \(rangomPage)")
         
-        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude, page: rangomPage) { (success, photoUrls, error) in
+        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude /*,  page: rangomPage */) { (success, photoUrls, error) in
         
             if success {
                 
@@ -145,11 +142,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             print("Photourls.count \(photoUrls!.count)")
                             
                             if Int(self.photoStringArray.count) == Int(photosUrls.count) {
-                                print("arrays are equal")
+                            
                                 self.generateNewCollectionButton.isEnabled = true
                             } else {
                                 self.generateNewCollectionButton.isEnabled = false
-                                print("arrays are not equal")
+                            
                             }
                             do {
                                 try self.dataController.viewContext.save()

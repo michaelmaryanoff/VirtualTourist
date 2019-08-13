@@ -20,8 +20,12 @@ class FlikrClient {
         static let extras = "extras=url_h"
     }
     
-    func requestPhotos(lat: Double, long: Double, page: Int, completion: @escaping(Bool, [String]?, Error?) -> Void) {
-        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&page=\(page)" + "&format=json" + "&nojsoncallback=1"
+    
+    
+    func requestPhotos(lat: Double, long: Double, /* page: Int,*/ completion: @escaping(Bool, [String]?, Error?) -> Void) {
+        
+        
+        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + /* "&page=\(page)" + */ "&format=json" + "&nojsoncallback=1"
         let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -47,6 +51,23 @@ class FlikrClient {
                     return
                 }
                 
+                print("jsonDict: \(jsonDict)")
+                
+                for (key, value) in jsonDict {
+                    
+                    if key == "photos" {
+                        for (key, value) in value as! [String:Any] {
+                            if key == "pages" {
+                                let pages = value as! Int
+                                print("we got some pages: \(pages)")
+                            }
+                        }
+                    } else {
+                        print("this key does not exist!")
+                    }
+                    
+                }
+                
                 
 //                print("jsonDict: \(jsonDict)")
                 
@@ -56,37 +77,7 @@ class FlikrClient {
                     return
                 }
                 
-//                print("photos: \(photos)")
-//                for (key, value) in jsonDict {
-//                    print("key: \(key)")
-//                    if key == "pages" {
-//                        print("pages: \(value)")
-////                        for (key, value) in value as! [String:Any] {
-////                            if key == "pages" {
-////                                var pages = value as? Int
-////                            }
-////                        }
-//                    } else {
-//                        print("this key does not exist!")
-//                    }
-//
-//                }
-//
-//
-//
-//
-////                for (key, value) in jsonDict {
-////                    if key == "photos" {
-////                        for (key, value) in value as! [String:Any] {
-////                            if key == "pages" {
-////                                var pages = value as? Int
-////                            }
-////                        }
-////                    } else {
-////                        print("this key does not exist!")
-////                    }
-////
-////                }
+
                 
                 for (key, value) in jsonDict {
                     
@@ -128,6 +119,7 @@ class FlikrClient {
             
         }
         task.resume()
+        
     }
     
     func getUrl(fromJSON json: [String:Any]) -> String? {
