@@ -31,7 +31,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var generateNewCollectionButton: UIButton!
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     override func viewDidLoad() {
+        
+        
         super.viewDidLoad()
         
         self.collectionView.dataSource = self
@@ -105,11 +109,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     fileprivate func makeNetworkCall() {
         
-        let rangomPage = Int.random(in: 0...10 )
+        let rangomPage = Int.random(in: 1...10 )
         print("random page: \(rangomPage)")
         
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude, page: rangomPage) { (success, photoUrls, error) in
-        
+            
+            
             if success {
                 
                 if let error = error {
@@ -139,11 +144,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             self.photoStringArray.append(newPhoto.url!)
                             self.photosArray = newPhotosArray
                             if Int(self.photoStringArray.count) == Int(photosUrls.count) {
-                            
                                 self.generateNewCollectionButton.isEnabled = true
                             } else {
                                 self.generateNewCollectionButton.isEnabled = false
-                            
                             }
                             do {
                                 try self.dataController.viewContext.save()
@@ -175,7 +178,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url) {
                 
                 DispatchQueue.main.async(execute: { () -> Void in
-                    print("converted the data!")
+                    
                     self.collectionView.reloadData()
                     completion(imgData)
                 })
@@ -201,28 +204,27 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-        if let urlImage = photosArray[indexPath.row].image {
-            
-            if urlImage == nil {
-                print("no image")
-            } else {
-            print("urlImage\(urlImage)")
-            }
-            
-            DispatchQueue.main.async {
-                cell.imageView.image = UIImage(data: urlImage)
-                self.collectionView.reloadData()
-                
-            }
-            
-            
+        let newIndexPath = photosArray[indexPath.row]
+        
+        if newIndexPath.image == nil {
+            print("not there")
         }
         
+            if let urlImage = photosArray[indexPath.row].image {
+
+
+                DispatchQueue.main.async {
+                    cell.imageView.image = UIImage(data: urlImage)
+                    self.collectionView.reloadData()
+                }
+
+
+            }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        var selectedPhoto = self.photosArray[indexPath.row]
+        let selectedPhoto = self.photosArray[indexPath.row]
         print("selectedPhoto \(selectedPhoto)")
         self.dataController.viewContext.delete(selectedPhoto)
         self.photosArray.remove(at: indexPath.row)
