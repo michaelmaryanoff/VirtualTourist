@@ -108,7 +108,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         let rangomPage = Int.random(in: 0...10 )
         print("random page: \(rangomPage)")
         
-        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude /*,  page: rangomPage */) { (success, photoUrls, error) in
+        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude, page: rangomPage) { (success, photoUrls, error) in
         
             if success {
                 
@@ -138,9 +138,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             self.photosArray.append(newPhoto)
                             self.photoStringArray.append(newPhoto.url!)
                             self.photosArray = newPhotosArray
-                            print("Photostringarray.count \(self.photoStringArray.count)")
-                            print("Photourls.count \(photoUrls!.count)")
-                            
                             if Int(self.photoStringArray.count) == Int(photosUrls.count) {
                             
                                 self.generateNewCollectionButton.isEnabled = true
@@ -218,7 +215,30 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        var selectedPhoto = self.photosArray[indexPath.row]
+        print("selectedPhoto \(selectedPhoto)")
+        self.dataController.viewContext.delete(selectedPhoto)
+        self.photosArray.remove(at: indexPath.row)
+        collectionView.deleteItems(at: [indexPath])
+        do {
+            print("photosArrayBefore: \(photosArray.count)")
+            try self.dataController.viewContext.save()
+            print("photosArrayAfter: \(photosArray.count)")
+        } catch {
+            print("cannot delete")
+        }
+        
+        self.collectionView.reloadData()
+        
+        
+        
+        
+    }
+    
 }
+
+
 
 // MARK: - Map functions
 

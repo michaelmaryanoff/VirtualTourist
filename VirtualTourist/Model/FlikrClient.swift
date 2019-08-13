@@ -20,12 +20,10 @@ class FlikrClient {
         static let extras = "extras=url_h"
     }
     
-    
-    
-    func requestPhotos(lat: Double, long: Double, /* page: Int,*/ completion: @escaping(Bool, [String]?, Error?) -> Void) {
+    func requestPhotos(lat: Double, long: Double, page: Int, completion: @escaping(Bool, [String]?, Error?) -> Void) {
         
         
-        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + /* "&page=\(page)" + */ "&format=json" + "&nojsoncallback=1"
+        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&page=\(page)" +  "&format=json" + "&nojsoncallback=1"
         let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
