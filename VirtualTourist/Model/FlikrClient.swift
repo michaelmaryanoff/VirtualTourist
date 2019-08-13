@@ -41,10 +41,14 @@ class FlikrClient {
                 var json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
                 
                 // TODO: pass number of pages, and pass through completion handler
-                guard let jsonDict = json as? [AnyHashable:Any] else {
+                // Changed from [AnyHashable:Any}
+                guard let jsonDict = json as? [String:Any] else {
                     print("guard 1")
                     return
                 }
+                
+                
+//                print("jsonDict: \(jsonDict)")
                 
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
@@ -52,11 +56,59 @@ class FlikrClient {
                     return
                 }
                 
+//                print("photos: \(photos)")
+//                for (key, value) in jsonDict {
+//                    print("key: \(key)")
+//                    if key == "pages" {
+//                        print("pages: \(value)")
+////                        for (key, value) in value as! [String:Any] {
+////                            if key == "pages" {
+////                                var pages = value as? Int
+////                            }
+////                        }
+//                    } else {
+//                        print("this key does not exist!")
+//                    }
+//
+//                }
+//
+//
+//
+//
+////                for (key, value) in jsonDict {
+////                    if key == "photos" {
+////                        for (key, value) in value as! [String:Any] {
+////                            if key == "pages" {
+////                                var pages = value as? Int
+////                            }
+////                        }
+////                    } else {
+////                        print("this key does not exist!")
+////                    }
+////
+////                }
+                
+                for (key, value) in jsonDict {
+                    
+                    if key == "photos" {
+                        for (key, value) in value as! [String:Any] {
+                            if key == "pages" {
+                                let pages = value as! Int
+                                print("we got some pages: \(pages)")
+                            }
+                        }
+                    } else {
+                        print("this key does not exist!")
+                    }
+                    
+                }
                 
                 guard let photosArray = photos["photo"] as? [[String:Any]] else {
                     print("guard 3")
                     return
                 }
+                
+                
                 
                 
                 for photoItem in photosArray {
@@ -87,11 +139,11 @@ class FlikrClient {
     }
     
     func getNumberOfPages(fromJSON json: [String:Any]) -> String? {
-        guard let urlString = json["pages"] as? String else {
+        guard let pagesString = json["pages"] as? String else {
             print("unable to get string")
             return nil
         }
-        return urlString
+        return pagesString
     }
     
  

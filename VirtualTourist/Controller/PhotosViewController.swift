@@ -158,9 +158,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             }
                         })
                         
-                       
-                        
-                        
                     }
                 
                 DispatchQueue.main.async {
