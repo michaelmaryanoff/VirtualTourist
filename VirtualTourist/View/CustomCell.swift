@@ -15,4 +15,5 @@ class CustomCell: UICollectionViewCell {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     
+    
 }

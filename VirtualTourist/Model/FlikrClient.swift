@@ -49,7 +49,6 @@ class FlikrClient {
                     return
                 }
                 
-                print("jsonDict: \(jsonDict)")
                 
                 for (key, value) in jsonDict {
                     
@@ -87,7 +86,7 @@ class FlikrClient {
                             }
                         }
                     } else {
-                        print("this key does not exist!")
+                        print("this key does not exist 2!")
                     }
                     
                 }

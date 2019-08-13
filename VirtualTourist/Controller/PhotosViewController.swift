@@ -17,13 +17,10 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var passedPin: Pin!
     
-    var isFirstTimeLoading: Bool = false
-    
     var photoStringArray: [String] = []
     
     var photosArray: [Photo] = []
     
-    var numberOfLoops = 0
     
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     
@@ -31,7 +28,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var generateNewCollectionButton: UIButton!
     
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     
     override func viewDidLoad() {
         
@@ -74,7 +71,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         photoStringArray = []
         makeNetworkCall()
         
-        self.collectionView.reloadData()
+        // TODO*** PAY ATTENTION TOT HIS
+//        self.collectionView.reloadData()
         
         
     }
@@ -97,8 +95,10 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                     
-                    return
+                    
                 }
+                //moved this out of main
+                return
             }
             
             
@@ -154,14 +154,14 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                                 print("not happening")
                             }
                         })
-                        
+                        DispatchQueue.main.async {
+                            
+                            self.collectionView.reloadData()
+                            
+                        }
                     }
                 
-                DispatchQueue.main.async {
-                    
-                    self.collectionView.reloadData()
-                    
-                }
+                
                 
             // Deleted a do catch block here
             } else {
@@ -178,9 +178,34 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url) {
                 
                 DispatchQueue.main.async(execute: { () -> Void in
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
                     
-                    self.collectionView.reloadData()
                     completion(imgData)
+                    //moved this down
+                    
+                    
+                })
+            }
+        }
+    }
+    
+    func dataToImage(theData: Data, completion: @escaping (_ image: UIImage) -> Void){
+        
+        DispatchQueue.global(qos: .userInitiated).async { () -> Void in
+            
+            if let newData = UIImage(data: theData) {
+                
+                DispatchQueue.main.async(execute: { () -> Void in
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                    
+                    completion(newData)
+                    //moved this down
+                    
+                    
                 })
             }
         }
@@ -204,24 +229,41 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-        let newIndexPath = photosArray[indexPath.row]
-        
-        if newIndexPath.image == nil {
-            print("not there")
-        }
-        
-            if let urlImage = photosArray[indexPath.row].image {
-
-
-                DispatchQueue.main.async {
-                    cell.imageView.image = UIImage(data: urlImage)
-                    self.collectionView.reloadData()
-                }
-
-
+        //New method, attempting to convert image in background
+        if let urlImage = photosArray[indexPath.row].image {
+            
+            self.dataToImage(theData: urlImage, completion: { (image) in
+                cell.imageView.image = image
+            })
+            
+            DispatchQueue.main.async {
+                
+                self.collectionView.reloadData()
             }
+            
+        }
+
+        
+        
+//            if let urlImage = photosArray[indexPath.row].image {
+//
+//                DispatchQueue.main.async {
+//                    cell.imageView.image = UIImage(data: urlImage)
+//                    self.collectionView.reloadData()
+//                }
+//
+//            }
+            else {
+                print("else")
+        }
         return cell
     }
+    
+//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+//        let cell = self.collectionView.cellForItem(at: indexPath) as? CustomCell
+//
+//        cell?.imageView.image = nil
+//    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedPhoto = self.photosArray[indexPath.row]
