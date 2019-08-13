@@ -203,6 +203,12 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         if let urlImage = photosArray[indexPath.row].image {
             
+            if urlImage == nil {
+                print("no image")
+            } else {
+            print("urlImage\(urlImage)")
+            }
+            
             DispatchQueue.main.async {
                 cell.imageView.image = UIImage(data: urlImage)
                 self.collectionView.reloadData()
@@ -222,9 +228,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         self.photosArray.remove(at: indexPath.row)
         collectionView.deleteItems(at: [indexPath])
         do {
-            print("photosArrayBefore: \(photosArray.count)")
             try self.dataController.viewContext.save()
-            print("photosArrayAfter: \(photosArray.count)")
         } catch {
             print("cannot delete")
         }
