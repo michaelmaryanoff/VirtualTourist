@@ -21,18 +21,13 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     var photosArray: [Photo] = []
     
-    
     var fetchedResultsController:NSFetchedResultsController<Photo>!
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var generateNewCollectionButton: UIButton!
     
-    
-    
     override func viewDidLoad() {
-        
-        
         super.viewDidLoad()
         
         self.collectionView.dataSource = self
@@ -41,7 +36,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
         initalizeAnnotationsArray()
         retrievePhotos()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -51,8 +45,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        // TODO?
-        // Try to save here?
         
     }
     
@@ -71,16 +63,17 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         photoStringArray = []
         makeNetworkCall()
         
-        // TODO*** PAY ATTENTION TOT HIS
+        // TODO*** Reenable
 //        self.collectionView.reloadData()
         
         
     }
     
     func retrievePhotos() {
-        
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
+        let sortDescriptor = NSSortDescriptor(key: "url", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
         fetchRequest.predicate = predicate
         
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
@@ -94,8 +87,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
-                    
-                    
                 }
                 //moved this out of main
                 return
@@ -230,10 +221,21 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
         //New method, attempting to convert image in background
+        
+        let currentIndexPath = photosArray[indexPath.row].image
+        
+        
         if let urlImage = photosArray[indexPath.row].image {
             
             self.dataToImage(theData: urlImage, completion: { (image) in
+                cell.activityIndicator.startAnimating()
+                
+                cell.imageView.image = UIImage(contentsOfFile: "VirtualTourist_120")
+                cell.activityIndicator.isHidden = true
+                cell.activityIndicator.stopAnimating()
                 cell.imageView.image = image
+                
+                
             })
             
             DispatchQueue.main.async {
@@ -242,17 +244,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
             }
             
         }
-
-        
-        
-//            if let urlImage = photosArray[indexPath.row].image {
-//
-//                DispatchQueue.main.async {
-//                    cell.imageView.image = UIImage(data: urlImage)
-//                    self.collectionView.reloadData()
-//                }
-//
-//            }
+            
             else {
                 print("else")
         }
@@ -279,9 +271,6 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         self.collectionView.reloadData()
         
-        
-        
-        
     }
     
 }
@@ -299,7 +288,6 @@ extension PhotosViewController: MKMapViewDelegate {
                                                   longitudinalMeters: regionRadius)
         mapView.setRegion(coordinateRegion, animated: true)
     }
-    
     
     func initalizeAnnotationsArray() {
         print("\(#function) called")
