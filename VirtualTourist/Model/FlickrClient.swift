@@ -22,7 +22,7 @@ class FlikrClient {
     
     func requestPages(lat: Double, long: Double, completion: @escaping(Bool, Int?, Error?) -> Void) {
         
-        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&format=json" + "&nojsoncallback=1"
+        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&format=json" + "&nojsoncallback=1"
         let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -38,16 +38,14 @@ class FlikrClient {
             }
             
             do {
-                var json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
                 
                 guard let jsonDict = json as? [String:Any] else {
                     print("guard 1")
                     return
                 }
-                var pages: Int = 0
                 
                 for (key, value) in jsonDict {
-                    
                     if key == "photos" {
                         for (key, value) in value as! [String:Any] {
                             if key == "pages" {
@@ -57,11 +55,10 @@ class FlikrClient {
                             }
                         }
                     } else {
-                        print("this key does not exist in \(#function)")
+                        print("this key does not exist in \(#function) 1")
                     }
                     
                 }
-                
                 
             } catch {
                 print(error.localizedDescription)
@@ -86,9 +83,8 @@ class FlikrClient {
                 print("numberOfPages found: \(numberOfPages)")
             }
             
-            var randomPage = Int.random(in: 1...numberOfPages)
-            
-        
+            let randomPage = Int.random(in: 1...numberOfPages)
+            print("randomPagePassedThrough: \(randomPage)")
         
         let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&page=\(randomPage)" +  "&format=json" + "&nojsoncallback=1"
         let request = URLRequest(url: URL(string: url)!)
@@ -107,18 +103,12 @@ class FlikrClient {
             
             do {
                 var stringArray = [String]()
-                var json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
                 
-                // TODO: pass number of pages, and pass through completion handler
-                // Changed from [AnyHashable:Any}
                 guard let jsonDict = json as? [String:Any] else {
                     print("guard 1")
                     return
                 }
-                
-                
-                
-                
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")

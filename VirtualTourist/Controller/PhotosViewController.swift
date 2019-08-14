@@ -45,7 +45,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
         do {
             try self.dataController.viewContext.save()
         } catch {
@@ -57,26 +56,28 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     func retrievePhotos() {
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
-        let sortDescriptor = NSSortDescriptor(key: "url", ascending: true)
-        fetchRequest.sortDescriptors = [sortDescriptor]
         fetchRequest.predicate = predicate
         
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            print("we got a result")
             
             if result.isEmpty {
-                print("we got a result")
+                print("the results are empty")
                 makeNetworkCall()
+            } else {
+                print("the results are not so we will set the photosarray to the result")
+                for item in result {
+                    photosArray.append(item)
+                }
+                
+//
             }
-            
-            photosArray = result
-            print("photosArray: \(photosArray)")
             
         }
         
     }
     
-    @IBAction func loadNewCollection(_ sender: UIButton) {
+    @IBAction func generateNewCollection(_ sender: UIButton) {
+        // Todo: maybe get rid of this
         self.generateNewCollectionButton.isEnabled = false
         for photo in photosArray {
             dataController.viewContext.delete(photo)
@@ -86,65 +87,81 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("could not delete these photos")
             }
         }
-        
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
         photosArray = []
         photoStringArray = []
         makeNetworkCall()
         
-        // TODO*** Reenable
-//        self.collectionView.reloadData()
-        
-        
     }
-    
-    
     
     fileprivate func makeNetworkCall() {
         
-        
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
+            print("network call made")
+            if error != nil {
+                print("This is the error: \(error!.localizedDescription)")
+                return
+            }
+            
             if success {
-                
-                if error != nil {
-                    print("This is the error: \(error!.localizedDescription)")
-                    return
-                }
-                
+                print("success in network call")
                 guard let photosUrls = photoUrls else {
                     print("We could not find any URLs")
                     return
                 }
                 
-//                var newPhotosArray: [Photo] = []
-//                let stringArray = photosUrls
+                self.photoStringArray = photosUrls
+                print("here is the new photoStringArray count after network call: \(self.photoStringArray.count)")
                 
-                    for photo in photosUrls {
-                        self.urlToData(urlString: photo, completion: { (data) in
-                            
-                            let newPhoto = Photo(context: self.dataController.viewContext)
-                            newPhoto.url = photo
-                            newPhoto.pin?.latitude = self.passedPin.latitude
-                            newPhoto.pin?.longitude = self.passedPin.longitude
-                            newPhoto.pin = self.passedPin
-                            
-                            newPhoto.image = data
-                            self.photosArray.append(newPhoto)
-                            self.photoStringArray.append(newPhoto.url!)
-                            if Int(self.photosArray.count) == Int(photosUrls.count) {
-                                self.generateNewCollectionButton.isEnabled = true
-                            } else {
-                                self.generateNewCollectionButton.isEnabled = false
-                            }
-                            do {
-                                try self.dataController.viewContext.save()
-                            } catch {
-                                print("not happening")
-                            }
-                        })
-                        DispatchQueue.main.async {
-                            self.collectionView.reloadData()
-                        }
+                for photoItem in self.photoStringArray {
+                    let newPhoto = Photo(context: self.dataController.viewContext)
+                    newPhoto.url = photoItem
+                    
+                    self.photosArray.append(newPhoto)
+                    do {
+                        try self.dataController.viewContext.save()
+                    } catch  {
+                        print("could not save!")
                     }
+                    
+                    self.photosArray.append(newPhoto)
+                }
+                
+                
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+                
+//                    for photo in photosUrls {
+//
+//                        self.urlToData(urlString: photo, completion: { (data) in
+//
+//                            let newPhoto = Photo(context: self.dataController.viewContext)
+//                            newPhoto.url = photo
+//                            newPhoto.pin?.latitude = self.passedPin.latitude
+//                            newPhoto.pin?.longitude = self.passedPin.longitude
+//                            newPhoto.pin = self.passedPin
+//
+//                            newPhoto.image = data
+//                            self.photosArray.append(newPhoto)
+//                            self.photoStringArray.append(newPhoto.url!)
+//                            if Int(self.photosArray.count) == Int(photosUrls.count) {
+//                                self.generateNewCollectionButton.isEnabled = true
+//                            } else {
+//                                self.generateNewCollectionButton.isEnabled = false
+//                            }
+//                            do {
+//                                try self.dataController.viewContext.save()
+//                            } catch {
+//                                print("not happening")
+//                            }
+//                        })
+//                        DispatchQueue.main.async {
+//                            self.collectionView.reloadData()
+//                        }
+//                    }
             // Deleted a do catch block here
             } else {
                 print("error in call")
@@ -153,20 +170,16 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     }
 
     
-    func urlToData(urlString: String, completion: @escaping (_ data: Data) -> Void){
+    func urlToData(urlString: String, completion: @escaping (_ data: Data?) -> Void){
         
         DispatchQueue.global(qos: .background).async { () -> Void in
             
             if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url) {
                 
                 DispatchQueue.main.async(execute: { () -> Void in
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
                     
                     completion(imgData)
                     //moved this down
-                    
                     
                 })
             }
@@ -212,45 +225,76 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
         let imagePath = photosArray[indexPath.row]
-        print("imagepath: \(imagePath)")
         
-        if imagePath.url == nil {
-            print("imagePath is nil!")
+        // If we have a URL saved at our index path
+        if let urlAtImagePath = imagePath.url {
+            
+            // Put an image placeholder in place
+            
+            
+            // Create a variable that holds our URL (not really necessary, since
+            // we are using an if let statement
+            
+            
+            // Download the image from that url
+            // Use an async function here
+            urlToData(urlString: urlAtImagePath) { (data) in
+                cell.imageView.image = UIImage(named: "VirtualTourist_120")
+                //
+                // BODY OF ASYNC CALL
+                //
+                guard let data = data else {
+                    print("could not find any data here!")
+                    return
+                }
+                imagePath.image = data
+                imagePath.pin = self.passedPin
+                
+                // set the imagepath to our downloaded data
+                // download this to our viewContext
+                
+                do {
+                    try self.dataController.viewContext.save()
+                } catch {
+                    print("could not save photos in \(#function)")
+                }
+                
+                // set the actual cell's image view to our image
+                DispatchQueue.main.async {
+                    cell.imageView!.image = UIImage(data: data)
+                }
+            }
+            
+            
+            
+            
         }
         
         
-        if let imageData = photosArray[indexPath.row].image {
-            
-            if imageData.isEmpty {
-                print("no image data")
-            }
-            
-            self.dataToImage(theData: imageData, completion: { (image) in
-                print("still executing")
-                
-                cell.imageView.image = image
-                
-                print("done executing")
-            })
-            
-            DispatchQueue.main.async {
-                
-                self.collectionView.reloadData()
-            }
-            
-        } else {
-            
-        print("else")
-        
-        }
+//        cell.imageView.image = UIImage(named: "VirtualTourist_76")
+//
+//        if let imageData = photosArray[indexPath.row].image {
+//
+//            if imageData.isEmpty {
+//                print("no image data")
+//            }
+//
+//
+//            self.dataToImage(theData: imageData, completion: { (image) in
+//                cell.imageView.image = image
+//
+//                DispatchQueue.main.async {
+//                    self.collectionView.reloadData()
+//            }
+//            })
+//
+//        } else {
+//        cell.imageView.image = UIImage(contentsOfFile: "VirtualTourist_120")
+//        print("else")
+//
+//        }
         return cell
     }
-    
-//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-//        let cell = self.collectionView.cellForItem(at: indexPath) as? CustomCell
-//
-//        cell?.imageView.image = nil
-//    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedPhoto = self.photosArray[indexPath.row]
@@ -269,8 +313,6 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
 }
-
-
 
 // MARK: - Map functions
 
