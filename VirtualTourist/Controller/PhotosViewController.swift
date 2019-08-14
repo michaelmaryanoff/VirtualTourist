@@ -46,6 +46,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
+        do {
+            try self.dataController.viewContext.save()
+        } catch {
+        print("Could not save before exiting")
+        }
+        
     }
     
     @IBAction func loadNewCollection(_ sender: UIButton) {
@@ -84,7 +90,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             photosArray = result
             
             for photo in result {
-                
+                print("Refresh")
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
@@ -92,36 +98,31 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 return
             }
             
-            
         }
-        
         
     }
     
     fileprivate func makeNetworkCall() {
         
         let rangomPage = Int.random(in: 1...10 )
-        print("random page: \(rangomPage)")
         
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude, page: rangomPage) { (success, photoUrls, error) in
-            
-            
             if success {
                 
-                if let error = error {
-                    print("This is the error: \(error.localizedDescription)")
+                if error != nil {
+                    print("This is the error: \(error!.localizedDescription)")
                     return
                 }
                 
                 guard let photosUrls = photoUrls else {
+                    print("We could not find any URLs")
                     return
                 }
                 
-                var newPhotosArray: [Photo] = []
-                let stringArray = photosUrls
+//                var newPhotosArray: [Photo] = []
+//                let stringArray = photosUrls
                 
-                    for photo in stringArray {
-                        
+                    for photo in photosUrls {
                         self.urlToData(urlString: photo, completion: { (data) in
                             
                             let newPhoto = Photo(context: self.dataController.viewContext)
@@ -129,12 +130,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             newPhoto.pin?.latitude = self.passedPin.latitude
                             newPhoto.pin?.longitude = self.passedPin.longitude
                             newPhoto.pin = self.passedPin
+                            
                             newPhoto.image = data
-                            newPhotosArray.append(newPhoto)
                             self.photosArray.append(newPhoto)
                             self.photoStringArray.append(newPhoto.url!)
-                            self.photosArray = newPhotosArray
-                            if Int(self.photoStringArray.count) == Int(photosUrls.count) {
+                            if Int(self.photosArray.count) == Int(photosUrls.count) {
                                 self.generateNewCollectionButton.isEnabled = true
                             } else {
                                 self.generateNewCollectionButton.isEnabled = false
@@ -146,14 +146,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             }
                         })
                         DispatchQueue.main.async {
-                            
                             self.collectionView.reloadData()
-                            
                         }
                     }
-                
-                
-                
             // Deleted a do catch block here
             } else {
                 print("error in call")
@@ -188,16 +183,16 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             
             if let newData = UIImage(data: theData) {
                 
-                DispatchQueue.main.async(execute: { () -> Void in
+                
                     DispatchQueue.main.async {
                         self.collectionView.reloadData()
-                    }
+                    
                     
                     completion(newData)
                     //moved this down
+                }
                     
-                    
-                })
+                
             }
         }
     }
@@ -222,20 +217,19 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         //New method, attempting to convert image in background
         
-        let currentIndexPath = photosArray[indexPath.row].image
         
-        
-        if let urlImage = photosArray[indexPath.row].image {
+        if let imageData = photosArray[indexPath.row].image {
             
-            self.dataToImage(theData: urlImage, completion: { (image) in
-                cell.activityIndicator.startAnimating()
+            if imageData.isEmpty {
+                print("no image data")
+            }
+            
+            self.dataToImage(theData: imageData, completion: { (image) in
+                print("still executing")
                 
-                cell.imageView.image = UIImage(contentsOfFile: "VirtualTourist_120")
-                cell.activityIndicator.isHidden = true
-                cell.activityIndicator.stopAnimating()
                 cell.imageView.image = image
                 
-                
+                print("done executing")
             })
             
             DispatchQueue.main.async {
@@ -243,10 +237,10 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
                 self.collectionView.reloadData()
             }
             
-        }
+        } else {
             
-            else {
-                print("else")
+        print("else")
+        
         }
         return cell
     }
