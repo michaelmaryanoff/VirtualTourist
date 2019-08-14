@@ -20,10 +20,77 @@ class FlikrClient {
         static let extras = "extras=url_h"
     }
     
-    func requestPhotos(lat: Double, long: Double, page: Int, completion: @escaping(Bool, [String]?, Error?) -> Void) {
+    func requestPages(lat: Double, long: Double, completion: @escaping(Bool, Int?, Error?) -> Void) {
+        
+        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&format=json" + "&nojsoncallback=1"
+        let request = URLRequest(url: URL(string: url)!)
+        
+        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            
+            if error != nil {
+                print("error is not nil in \(#function): \(error!.localizedDescription)")
+                completion(false, 0, error)
+            }
+            
+            guard let data = data else {
+                completion(false, 0, error)
+                return
+            }
+            
+            do {
+                var json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                
+                guard let jsonDict = json as? [String:Any] else {
+                    print("guard 1")
+                    return
+                }
+                var pages: Int = 0
+                
+                for (key, value) in jsonDict {
+                    
+                    if key == "photos" {
+                        for (key, value) in value as! [String:Any] {
+                            if key == "pages" {
+                                let pages = value as! Int
+                                print("we got some pages in \(#function): \(pages)")
+                                completion(true, pages, nil)
+                            }
+                        }
+                    } else {
+                        print("this key does not exist in \(#function)")
+                    }
+                    
+                }
+                
+                
+            } catch {
+                print(error.localizedDescription)
+            }
+            
+        }
+        task.resume()
+        
+    }
+    
+    func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, [String]?, Error?) -> Void) {
+        
+        self.requestPages(lat: lat, long: long) { (success, numberOfPages, error) in
+            
+            
+            
+            guard let numberOfPages = numberOfPages else {
+                print("numberOfpages returned nil")
+                return
+            }
+            if success {
+                print("numberOfPages found: \(numberOfPages)")
+            }
+            
+            var randomPage = Int.random(in: 1...numberOfPages)
+            
         
         
-        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&page=\(page)" +  "&format=json" + "&nojsoncallback=1"
+        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&page=\(randomPage)" +  "&format=json" + "&nojsoncallback=1"
         let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -50,54 +117,19 @@ class FlikrClient {
                 }
                 
                 
-                for (key, value) in jsonDict {
-                    
-                    if key == "photos" {
-                        for (key, value) in value as! [String:Any] {
-                            if key == "pages" {
-                                let pages = value as! Int
-                                print("we got some pages: \(pages)")
-                            }
-                        }
-                    } else {
-                        print("this key does not exist!")
-                    }
-                    
-                }
                 
-                
-//                print("jsonDict: \(jsonDict)")
                 
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")
                     return
                 }
-                
 
-                
-                for (key, value) in jsonDict {
-                    
-                    if key == "photos" {
-                        for (key, value) in value as! [String:Any] {
-                            if key == "pages" {
-                                let pages = value as! Int
-                                print("we got some pages: \(pages)")
-                            }
-                        }
-                    } else {
-                        print("this key does not exist 2!")
-                    }
-                    
-                }
                 
                 guard let photosArray = photos["photo"] as? [[String:Any]] else {
                     print("guard 3")
                     return
                 }
-                
-                
-                
                 
                 for photoItem in photosArray {
                     if let newPhoto = self.getUrl(fromJSON: photoItem) {
@@ -112,16 +144,13 @@ class FlikrClient {
                 print(error.localizedDescription)
             }
             
-            
-            
         }
         task.resume()
-        
+        }
     }
     
     func getUrl(fromJSON json: [String:Any]) -> String? {
         guard let urlString = json["url_h"] as? String else {
-//            print("could not get string")
             return nil
         }
         return urlString
@@ -129,13 +158,10 @@ class FlikrClient {
     
     func getNumberOfPages(fromJSON json: [String:Any]) -> String? {
         guard let pagesString = json["pages"] as? String else {
-            print("unable to get string")
             return nil
         }
         return pagesString
     }
-    
- 
     
     class func shared() -> FlikrClient {
         struct Singleton {

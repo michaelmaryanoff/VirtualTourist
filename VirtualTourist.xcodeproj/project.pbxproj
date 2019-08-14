@@ -16,7 +16,7 @@
 		CB86DEF622E8C8FB00B53E45 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB86DEF522E8C8FB00B53E45 /* Assets.xcassets */; };
 		CB86DEF922E8C8FB00B53E45 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB86DEF722E8C8FB00B53E45 /* LaunchScreen.storyboard */; };
 		CB86DF0322E8D88600B53E45 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB86DF0222E8D88600B53E45 /* DataController.swift */; };
-		CBA5D12D22EF6B2D00143572 /* FlikrClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA5D12C22EF6B2D00143572 /* FlikrClient.swift */; };
+		CBA5D12D22EF6B2D00143572 /* FlickrClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA5D12C22EF6B2D00143572 /* FlickrClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,7 +31,7 @@
 		CB86DEF822E8C8FB00B53E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CB86DEFA22E8C8FB00B53E45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB86DF0222E8D88600B53E45 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
-		CBA5D12C22EF6B2D00143572 /* FlikrClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlikrClient.swift; sourceTree = "<group>"; };
+		CBA5D12C22EF6B2D00143572 /* FlickrClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,7 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				CB86DEF222E8C8FB00B53E45 /* VirtualTourist.xcdatamodeld */,
-				CBA5D12C22EF6B2D00143572 /* FlikrClient.swift */,
+				CBA5D12C22EF6B2D00143572 /* FlickrClient.swift */,
 				CB86DF0222E8D88600B53E45 /* DataController.swift */,
 			);
 			path = Model;
@@ -178,7 +178,7 @@
 				CB86DF0322E8D88600B53E45 /* DataController.swift in Sources */,
 				CB86DEEC22E8C8FB00B53E45 /* AppDelegate.swift in Sources */,
 				CB7AAE7D22F0C2AA009D54D4 /* PhotosViewController.swift in Sources */,
-				CBA5D12D22EF6B2D00143572 /* FlikrClient.swift in Sources */,
+				CBA5D12D22EF6B2D00143572 /* FlickrClient.swift in Sources */,
 				CB86DEF422E8C8FB00B53E45 /* VirtualTourist.xcdatamodeld in Sources */,
 				CB07072D22F49FCA00212DA2 /* CustomCell.swift in Sources */,
 			);

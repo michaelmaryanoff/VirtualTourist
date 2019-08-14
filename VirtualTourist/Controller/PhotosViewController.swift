@@ -54,6 +54,28 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
     }
     
+    func retrievePhotos() {
+        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        let predicate = NSPredicate(format: "pin == %@", passedPin)
+        let sortDescriptor = NSSortDescriptor(key: "url", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        fetchRequest.predicate = predicate
+        
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            print("we got a result")
+            
+            if result.isEmpty {
+                print("we got a result")
+                makeNetworkCall()
+            }
+            
+            photosArray = result
+            print("photosArray: \(photosArray)")
+            
+        }
+        
+    }
+    
     @IBAction func loadNewCollection(_ sender: UIButton) {
         self.generateNewCollectionButton.isEnabled = false
         for photo in photosArray {
@@ -75,38 +97,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
     }
     
-    func retrievePhotos() {
-        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
-        let predicate = NSPredicate(format: "pin == %@", passedPin)
-        let sortDescriptor = NSSortDescriptor(key: "url", ascending: true)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        fetchRequest.predicate = predicate
-        
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            
-            if result.isEmpty {
-                makeNetworkCall()
-            }
-            photosArray = result
-            
-            for photo in result {
-                print("Refresh")
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-                //moved this out of main
-                return
-            }
-            
-        }
-        
-    }
+    
     
     fileprivate func makeNetworkCall() {
         
-        let rangomPage = Int.random(in: 1...10 )
         
-        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude, page: rangomPage) { (success, photoUrls, error) in
+        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             if success {
                 
                 if error != nil {
@@ -215,28 +211,27 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-        //New method, attempting to convert image in background
+        let imagePath = photosArray[indexPath.row]
+        print("imagepath: \(imagePath)")
+        
+        if imagePath.url == nil {
+            print("imagePath is nil!")
+        }
         
         
-        // UNDO? Changing this to a url in order to work async
-        if let imageData = photosArray[indexPath.row].url {
-            
-            print(indexPath.row)
-            print(indexPath)
+        if let imageData = photosArray[indexPath.row].image {
             
             if imageData.isEmpty {
                 print("no image data")
             }
             
-            urlToData(urlString: imageData) { (data) in
-                print("converting it")
-                print(imageData)
-                self.dataToImage(theData: data, completion: { (image) in
-                    cell.imageView.image = image
-                })
-            }
-            
-            
+            self.dataToImage(theData: imageData, completion: { (image) in
+                print("still executing")
+                
+                cell.imageView.image = image
+                
+                print("done executing")
+            })
             
             DispatchQueue.main.async {
                 
