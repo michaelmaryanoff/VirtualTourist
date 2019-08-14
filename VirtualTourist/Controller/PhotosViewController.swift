@@ -218,19 +218,25 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         //New method, attempting to convert image in background
         
         
-        if let imageData = photosArray[indexPath.row].image {
+        // UNDO? Changing this to a url in order to work async
+        if let imageData = photosArray[indexPath.row].url {
+            
+            print(indexPath.row)
+            print(indexPath)
             
             if imageData.isEmpty {
                 print("no image data")
             }
             
-            self.dataToImage(theData: imageData, completion: { (image) in
-                print("still executing")
-                
-                cell.imageView.image = image
-                
-                print("done executing")
-            })
+            urlToData(urlString: imageData) { (data) in
+                print("converting it")
+                print(imageData)
+                self.dataToImage(theData: data, completion: { (image) in
+                    cell.imageView.image = image
+                })
+            }
+            
+            
             
             DispatchQueue.main.async {
                 
