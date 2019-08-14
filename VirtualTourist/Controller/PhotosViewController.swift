@@ -64,12 +64,18 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("the results are empty")
                 makeNetworkCall()
             } else {
-                print("the results are not so we will set the photosarray to the result")
-                for item in result {
-                    photosArray.append(item)
+                print("the results are not empty so we will set the photosarray to the result")
+                print(result)
+//                for item in result {
+//                    photosArray.append(item)
+//
+//                }
+                photosArray = result
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
                 }
                 
-//
+                
             }
             
         }
@@ -93,7 +99,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         photosArray = []
         photoStringArray = []
         makeNetworkCall()
-        
     }
     
     fileprivate func makeNetworkCall() {
@@ -116,17 +121,23 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("here is the new photoStringArray count after network call: \(self.photoStringArray.count)")
                 
                 for photoItem in self.photoStringArray {
-                    let newPhoto = Photo(context: self.dataController.viewContext)
-                    newPhoto.url = photoItem
                     
-                    self.photosArray.append(newPhoto)
-                    do {
-                        try self.dataController.viewContext.save()
-                    } catch  {
-                        print("could not save!")
+                    DispatchQueue.main.async {
+                        let newPhoto = Photo(context: self.dataController.viewContext)
+                        newPhoto.url = photoItem
+                        newPhoto.pin?.latitude = self.passedPin.latitude
+                        newPhoto.pin?.longitude = self.passedPin.longitude
+                        
+                        
+                        self.photosArray.append(newPhoto)
+                        do {
+                            try self.dataController.viewContext.save()
+                        } catch  {
+                            print("could not save!")
+                        }
+                        
                     }
                     
-                    self.photosArray.append(newPhoto)
                 }
                 
                 
@@ -227,6 +238,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         let imagePath = photosArray[indexPath.row]
         
         // If we have a URL saved at our index path
+        cell.imageView.image = UIImage(named: "VirtualTourist_120")
         if let urlAtImagePath = imagePath.url {
             
             // Put an image placeholder in place
@@ -239,7 +251,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
             // Download the image from that url
             // Use an async function here
             urlToData(urlString: urlAtImagePath) { (data) in
-                cell.imageView.image = UIImage(named: "VirtualTourist_120")
+                
                 //
                 // BODY OF ASYNC CALL
                 //
