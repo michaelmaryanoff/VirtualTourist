@@ -99,6 +99,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     fileprivate func makeNetworkCall() {
         
+        print("network call made")
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             print("network call made")
             if error != nil {
@@ -149,15 +150,12 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     func urlToData(urlString: String, completion: @escaping (_ data: Data?) -> Void){
         
-        DispatchQueue.global(qos: .userInitiated).async { () -> Void in
+        DispatchQueue.global(qos: .background).async { () -> Void in
             
             if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url) {
                 
                 DispatchQueue.main.async(execute: { () -> Void in
-                    
                     completion(imgData)
-                    //moved this down
-                    
                 })
             }
         }
