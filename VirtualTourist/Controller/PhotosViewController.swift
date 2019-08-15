@@ -89,12 +89,13 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("could not delete these photos")
             }
         }
-        DispatchQueue.main.async {
-            self.collectionView.reloadData()
-        }
         photosArray = []
         photoStringArray = []
         makeNetworkCall()
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
+
     }
     
     fileprivate func makeNetworkCall() {
@@ -115,6 +116,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             
         FlikrClient.shared().requestPhotos(lat: self.passedPin.latitude, long: self.passedPin.longitude, randomPage: randomPage) { (success, photoUrls, error) in
             print("network call made")
+            print("randomPage: \(randomPage)")
+
             if error != nil {
                 print("This is the error: \(error!.localizedDescription)")
                 return
@@ -127,10 +130,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     return
                 }
                 
+                self.photoStringArray = []
                 self.photoStringArray = photosUrls
-                print("here is the new photoStringArray count after network call: \(self.photoStringArray.count)")
+             
                 
-                for photoItem in self.photoStringArray {
+                for photoItem in photosUrls {
                     
                     DispatchQueue.main.async {
                         let newPhoto = Photo(context: self.dataController.viewContext)

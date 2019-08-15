@@ -121,16 +121,23 @@ class FlikrClient {
                     return
                 }
                 
-                print("photosArray: \(photosArray)")
-                
                 for photoItem in photosArray {
                     if let newPhoto = self.getUrl(fromJSON: photoItem) {
                         stringArray.append(newPhoto)
+                        // moved this into the loop
+                        
+                       
                     }
                     
+                    
+                }
+                DispatchQueue.main.async {
+                    completion(true, stringArray, nil)
                 }
                 
-                completion(true, stringArray, nil)
+                
+                
+                
                 
             } catch {
                 print(error.localizedDescription)
