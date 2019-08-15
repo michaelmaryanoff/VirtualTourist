@@ -71,17 +71,17 @@ class FlikrClient {
         
     }
     
-    func requestPhotos(lat: Double, long: Double, completion: @escaping(Bool, [String]?, Error?) -> Void) {
+    func requestPhotos(lat: Double, long: Double, randomPage: Int, completion: @escaping(Bool, [String]?, Error?) -> Void) {
         
-        self.requestPages(lat: lat, long: long) { (success, numberOfPages, error) in
-            
-            guard let numberOfPages = numberOfPages else {
-                print("numberOfpages returned nil")
-                return
-            }
-            
-            var randomPage = Int.random(in: 1...numberOfPages)
-            print("randomPagePassedThrough: \(randomPage)")
+//        self.requestPages(lat: lat, long: long) { (success, numberOfPages, error) in
+//
+//            guard let numberOfPages = numberOfPages else {
+//                print("numberOfpages returned nil")
+//                return
+//            }
+//
+//            var randomPage = Int.random(in: 1...numberOfPages)
+//            print("randomPagePassedThrough: \(randomPage)")
         
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.perPage + "&page=\(randomPage)" +  RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
@@ -138,7 +138,7 @@ class FlikrClient {
             
         }
         task.resume()
-        }
+//        }
     }
     
     func getUrl(fromJSON json: [String:Any]) -> String? {

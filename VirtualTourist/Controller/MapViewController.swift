@@ -112,8 +112,6 @@ extension MapViewController: MKMapViewDelegate {
         // Appends to relevant arrays
         annotations.append(annotation)
         pinArray.append(newPin)
-        
-        
         mapView.addAnnotation(annotation)
         do {
             try dataController.viewContext.save()
@@ -134,15 +132,10 @@ extension MapViewController: MKMapViewDelegate {
                 return
             }
         }
-        
-        
-    
-        
     }
     
    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "presentPhotosCollection" {
-            
             let destinationVC = segue.destination as! PhotosViewController
             
             destinationVC.passedPin = sender as! Pin

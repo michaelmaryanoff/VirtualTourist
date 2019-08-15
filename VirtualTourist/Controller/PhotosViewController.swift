@@ -80,6 +80,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     }
     
     @IBAction func generateNewCollection(_ sender: UIButton) {
+        generateNewCollectionButton.isEnabled = false
         for photo in photosArray {
             dataController.viewContext.delete(photo)
             do {
@@ -98,7 +99,21 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     fileprivate func makeNetworkCall() {
         
-        FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
+        FlikrClient.shared().requestPages(lat: passedPin.latitude, long: passedPin.longitude) { (success, numberOfPages, error) in
+            
+            if error != nil {
+                print(error?.localizedDescription)
+            }
+            
+            guard let numberOfPages = numberOfPages else {
+                print("could not get number of pages in PhotosViewController")
+                return
+            }
+            
+            
+            var randomPage = Int.random(in: 0...numberOfPages)
+            
+        FlikrClient.shared().requestPhotos(lat: self.passedPin.latitude, long: self.passedPin.longitude, randomPage: randomPage) { (success, photoUrls, error) in
             print("network call made")
             if error != nil {
                 print("This is the error: \(error!.localizedDescription)")
@@ -124,6 +139,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         newPhoto.pin?.longitude = self.passedPin.longitude
                         
                         self.photosArray.append(newPhoto)
+                       
                         do {
                             //print("saved in photosArray.append")
                             try self.dataController.viewContext.save()
@@ -133,7 +149,14 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         
                     }
                     
+                    
                 }
+//                if self.photosArray.count != photosUrls.count {
+//                    DispatchQueue.main.async {
+//                        self.generateNewCollectionButton.isEnabled = false
+//                    }
+//                    
+//                }
                 
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
@@ -142,6 +165,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             } else {
                 print("error in call")
             }
+        }
         }
     }
 
@@ -191,6 +215,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         return photosArray.count
     }
     
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let identifier = "customCell"
@@ -208,18 +233,19 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
             generateNewCollectionButton.isEnabled = true
         } else {
             cell.beginAnimating()
-            generateNewCollectionButton.isEnabled = false
+            self.generateNewCollectionButton.isEnabled = false
             cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
+            
             if let urlAtImagePath = imagePath.url {
-                
                 urlToData(urlString: urlAtImagePath) { (data) in
                     
                     if let data = data  {
                         imagePath.image = data
                         cell.imageView!.image = UIImage(data: data)
-                        // Maybe move this out of optional block
+                        DispatchQueue.main.async {
+                            self.generateNewCollectionButton.isEnabled = true
+                        }
                         cell.endAnimating()
-                        self.generateNewCollectionButton.isEnabled = true
                     }
                     
                     imagePath.pin = self.passedPin
