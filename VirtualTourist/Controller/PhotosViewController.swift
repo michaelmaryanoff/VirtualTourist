@@ -47,11 +47,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        do {
-            try self.dataController.viewContext.save()
-        } catch {
-        print("Could not save before exiting")
-        }
+//        do {
+//            try self.dataController.viewContext.save()
+//        } catch {
+//        print("Could not save before exiting")
+//        }
         
     }
     
@@ -67,7 +67,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 makeNetworkCall()
             } else {
                 print("the results are not empty so we will set the photosarray to the result")
-                print(result)
                 photosArray = result
                 DispatchQueue.main.async {
                     print("called reload in retrieve")
@@ -99,7 +98,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     fileprivate func makeNetworkCall() {
         
-        print("network call made")
         FlikrClient.shared().requestPhotos(lat: passedPin.latitude, long: passedPin.longitude) { (success, photoUrls, error) in
             print("network call made")
             if error != nil {

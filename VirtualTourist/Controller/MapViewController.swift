@@ -23,6 +23,8 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     
     var fetchedResultsController:NSFetchedResultsController<Pin>!
 
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -36,6 +38,16 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
         // Creates a fetch request
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
         
+        makeFetchRequest(fetchRequest)
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+    }
+    
+    fileprivate func makeFetchRequest(_ fetchRequest: NSFetchRequest<Pin>) {
         // Takes the results of the fetch request
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
@@ -57,12 +69,6 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
             }
             
         }
-        
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
     }
 
 

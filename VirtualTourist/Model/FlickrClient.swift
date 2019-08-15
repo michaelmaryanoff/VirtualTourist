@@ -25,12 +25,8 @@ class FlikrClient {
     
     func requestPages(lat: Double, long: Double, completion: @escaping(Bool, Int?, Error?) -> Void) {
         
-        
-        
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
-        
-        print("pagesUrl \(url)")
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
@@ -46,7 +42,6 @@ class FlikrClient {
             
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                
                 guard let jsonDict = json as? [String:Any] else {
                     print("guard 1")
                     return
@@ -62,7 +57,7 @@ class FlikrClient {
                             }
                         }
                     } else {
-                        //print("this key does not exist in \(#function) 1")
+                        print("this key does not exist in \(#function) 1")
                     }
                     
                 }
@@ -84,9 +79,6 @@ class FlikrClient {
                 print("numberOfpages returned nil")
                 return
             }
-//            if success {
-//                print("numberOfPages found: \(numberOfPages)")
-//            }
             
             var randomPage = Int.random(in: 1...numberOfPages)
             print("randomPagePassedThrough: \(randomPage)")
@@ -94,6 +86,8 @@ class FlikrClient {
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.perPage + "&page=\(randomPage)" +  RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
         
+            print("request url in \(#function): \(url)")
+            
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
             if error != nil {
