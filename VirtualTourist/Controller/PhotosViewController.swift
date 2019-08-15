@@ -40,6 +40,8 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        retrievePhotos()
 
     }
     
@@ -66,15 +68,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             } else {
                 print("the results are not empty so we will set the photosarray to the result")
                 print(result)
-//                for item in result {
-//                    photosArray.append(item)
-//
-//                }
                 photosArray = result
                 DispatchQueue.main.async {
+                    print("called reload in retrieve")
                     self.collectionView.reloadData()
                 }
-                
                 
             }
             
@@ -83,8 +81,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     }
     
     @IBAction func generateNewCollection(_ sender: UIButton) {
-        // Todo: maybe get rid of this
-        self.generateNewCollectionButton.isEnabled = false
         for photo in photosArray {
             dataController.viewContext.delete(photo)
             do {
@@ -128,9 +124,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         newPhoto.pin?.latitude = self.passedPin.latitude
                         newPhoto.pin?.longitude = self.passedPin.longitude
                         
-                        
                         self.photosArray.append(newPhoto)
                         do {
+                            //print("saved in photosArray.append")
                             try self.dataController.viewContext.save()
                         } catch  {
                             print("could not save!")
@@ -140,40 +136,10 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                     
                 }
                 
-                
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
                 
-//                    for photo in photosUrls {
-//
-//                        self.urlToData(urlString: photo, completion: { (data) in
-//
-//                            let newPhoto = Photo(context: self.dataController.viewContext)
-//                            newPhoto.url = photo
-//                            newPhoto.pin?.latitude = self.passedPin.latitude
-//                            newPhoto.pin?.longitude = self.passedPin.longitude
-//                            newPhoto.pin = self.passedPin
-//
-//                            newPhoto.image = data
-//                            self.photosArray.append(newPhoto)
-//                            self.photoStringArray.append(newPhoto.url!)
-//                            if Int(self.photosArray.count) == Int(photosUrls.count) {
-//                                self.generateNewCollectionButton.isEnabled = true
-//                            } else {
-//                                self.generateNewCollectionButton.isEnabled = false
-//                            }
-//                            do {
-//                                try self.dataController.viewContext.save()
-//                            } catch {
-//                                print("not happening")
-//                            }
-//                        })
-//                        DispatchQueue.main.async {
-//                            self.collectionView.reloadData()
-//                        }
-//                    }
-            // Deleted a do catch block here
             } else {
                 print("error in call")
             }
@@ -183,7 +149,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     func urlToData(urlString: String, completion: @escaping (_ data: Data?) -> Void){
         
-        DispatchQueue.global(qos: .background).async { () -> Void in
+        DispatchQueue.global(qos: .userInitiated).async { () -> Void in
             
             if let url = URL(string: urlString), let imgData = try? Data(contentsOf: url) {
                 
@@ -237,74 +203,43 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         let imagePath = photosArray[indexPath.row]
         
-        // If we have a URL saved at our index path
-        cell.imageView.image = UIImage(named: "VirtualTourist_120")
-        if let urlAtImagePath = imagePath.url {
-            
-            // Put an image placeholder in place
-            
-            
-            // Create a variable that holds our URL (not really necessary, since
-            // we are using an if let statement
-            
-            
-            // Download the image from that url
-            // Use an async function here
-            urlToData(urlString: urlAtImagePath) { (data) in
+        if imagePath.image != nil {
+            cell.beginAnimating()
+            generateNewCollectionButton.isEnabled = false
+            cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
+            cell.imageView!.image = UIImage(data: imagePath.image!)
+            cell.endAnimating()
+            generateNewCollectionButton.isEnabled = true
+        } else {
+            cell.beginAnimating()
+            generateNewCollectionButton.isEnabled = false
+            cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
+            if let urlAtImagePath = imagePath.url {
                 
-                //
-                // BODY OF ASYNC CALL
-                //
-                guard let data = data else {
-                    print("could not find any data here!")
-                    return
+                urlToData(urlString: urlAtImagePath) { (data) in
+                    
+                    if let data = data  {
+                        imagePath.image = data
+                        cell.imageView!.image = UIImage(data: data)
+                        // Maybe move this out of optional block
+                        cell.endAnimating()
+                        self.generateNewCollectionButton.isEnabled = true
+                    }
+                    
+                    imagePath.pin = self.passedPin
+                    
+                    do {
+                        try self.dataController.viewContext.save()
+                    } catch {
+                        print("could not save photos in \(#function)")
+                    }
+                    
                 }
-                imagePath.image = data
-                imagePath.pin = self.passedPin
                 
-                // set the imagepath to our downloaded data
-                // download this to our viewContext
                 
-                do {
-                    try self.dataController.viewContext.save()
-                } catch {
-                    print("could not save photos in \(#function)")
-                }
-                
-                // set the actual cell's image view to our image
-                DispatchQueue.main.async {
-                    cell.imageView!.image = UIImage(data: data)
-                }
             }
-            
-            
-            
-            
         }
         
-        
-//        cell.imageView.image = UIImage(named: "VirtualTourist_76")
-//
-//        if let imageData = photosArray[indexPath.row].image {
-//
-//            if imageData.isEmpty {
-//                print("no image data")
-//            }
-//
-//
-//            self.dataToImage(theData: imageData, completion: { (image) in
-//                cell.imageView.image = image
-//
-//                DispatchQueue.main.async {
-//                    self.collectionView.reloadData()
-//            }
-//            })
-//
-//        } else {
-//        cell.imageView.image = UIImage(contentsOfFile: "VirtualTourist_120")
-//        print("else")
-//
-//        }
         return cell
     }
     

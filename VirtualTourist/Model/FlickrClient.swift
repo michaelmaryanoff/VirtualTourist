@@ -50,12 +50,12 @@ class FlikrClient {
                         for (key, value) in value as! [String:Any] {
                             if key == "pages" {
                                 let pages = value as! Int
-                                print("we got some pages in \(#function): \(pages)")
+                                //print("we got some pages in \(#function): \(pages)")
                                 completion(true, pages, nil)
                             }
                         }
                     } else {
-                        print("this key does not exist in \(#function) 1")
+                        //print("this key does not exist in \(#function) 1")
                     }
                     
                 }
@@ -73,18 +73,16 @@ class FlikrClient {
         
         self.requestPages(lat: lat, long: long) { (success, numberOfPages, error) in
             
-            
-            
             guard let numberOfPages = numberOfPages else {
                 print("numberOfpages returned nil")
                 return
             }
             if success {
-                print("numberOfPages found: \(numberOfPages)")
+                //print("numberOfPages found: \(numberOfPages)")
             }
             
             let randomPage = Int.random(in: 1...numberOfPages)
-            print("randomPagePassedThrough: \(randomPage)")
+            //print("randomPagePassedThrough: \(randomPage)")
         
         let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&page=\(randomPage)" +  "&format=json" + "&nojsoncallback=1"
         let request = URLRequest(url: URL(string: url)!)
@@ -109,6 +107,8 @@ class FlikrClient {
                     print("guard 1")
                     return
                 }
+                
+//                print(jsonDict)
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")

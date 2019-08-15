@@ -78,7 +78,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="156" height="132"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="VirtualTourist_120" translatesAutoresizingMaskIntoConstraints="NO" id="ik9-LG-Hr3">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="VirtualTourist_Placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="ik9-LG-Hr3">
                                                     <rect key="frame" x="0.0" y="0.0" width="156" height="132"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 </imageView>
@@ -158,6 +158,6 @@
     </scenes>
     <resources>
         <image name="Back" width="16" height="16"/>
-        <image name="VirtualTourist_120" width="120" height="120"/>
+        <image name="VirtualTourist_Placeholder" width="120" height="120"/>
     </resources>
 </document>
