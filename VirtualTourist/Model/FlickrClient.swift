@@ -14,16 +14,23 @@ class FlikrClient {
     
     struct RequestConstants {
         static let baseURLString = "https://www.flickr.com/services/rest/"
-        static let apiKey = "api_key=cfcda78c06f98952812fc893f4c92f24"
-        static let method = "method=flickr.photos.search"
-        static let radius = "radius=10"
-        static let extras = "extras=url_h"
+        static let method = "?method=flickr.photos.search"
+        static let apiKey = "&api_key=cfcda78c06f98952812fc893f4c92f24"
+        static let radius = "&radius=10"
+        static let extras = "&extras=url_h"
+        static let format = "&format=json"
+        static let noJsonCallBack = "&nojsoncallback=1"
+        static let perPage = "&per_page=30"
     }
     
     func requestPages(lat: Double, long: Double, completion: @escaping(Bool, Int?, Error?) -> Void) {
         
-        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&format=json" + "&nojsoncallback=1"
+        
+        
+        let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
+        
+        print("pagesUrl \(url)")
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
@@ -77,14 +84,14 @@ class FlikrClient {
                 print("numberOfpages returned nil")
                 return
             }
-            if success {
-                print("numberOfPages found: \(numberOfPages)")
-            }
+//            if success {
+//                print("numberOfPages found: \(numberOfPages)")
+//            }
             
-            let randomPage = Int.random(in: 1...numberOfPages)
+            var randomPage = Int.random(in: 1...numberOfPages)
             print("randomPagePassedThrough: \(randomPage)")
         
-        let url = RequestConstants.baseURLString + "?" + RequestConstants.method + "&" + RequestConstants.apiKey + "&" + "lat=\(lat)" + "&" + "lon=\(long)" + "&" + RequestConstants.radius + "&" + RequestConstants.extras + "&per_page=30" + "&page=\(randomPage)" +  "&format=json" + "&nojsoncallback=1"
+        let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.perPage + "&page=\(randomPage)" +  RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
