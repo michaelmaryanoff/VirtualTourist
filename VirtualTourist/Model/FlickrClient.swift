@@ -47,6 +47,7 @@ class FlikrClient {
                     return
                 }
                 
+                
                 for (key, value) in jsonDict {
                     if key == "photos" {
                         for (key, value) in value as! [String:Any] {
@@ -61,6 +62,7 @@ class FlikrClient {
                     }
                     
                 }
+                
                 
             } catch {
                 print(error.localizedDescription)
@@ -86,7 +88,7 @@ class FlikrClient {
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.perPage + "&page=\(randomPage)" +  RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
         
-            print("request url in \(#function): \(url)")
+            //print("request url in \(#function): \(url)")
             
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
@@ -109,11 +111,13 @@ class FlikrClient {
                     return
                 }
                 
+                //print("Guard let jsonDict: \(jsonDict)")
+                
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")
                     return
                 }
-                print("Photos: \(photos)")
+                //print("guard let photos: \(photos)")
 
                 
                 guard let photosArray = photos["photo"] as? [[String:Any]] else {
@@ -121,23 +125,19 @@ class FlikrClient {
                     return
                 }
                 
+                print("guard let photosArray\(photosArray)")
+                
                 for photoItem in photosArray {
                     if let newPhoto = self.getUrl(fromJSON: photoItem) {
                         stringArray.append(newPhoto)
                         // moved this into the loop
-                        
-                       
                     }
                     
-                    
                 }
+                print("stringArray after loop in client code: \(stringArray)")
                 DispatchQueue.main.async {
                     completion(true, stringArray, nil)
                 }
-                
-                
-                
-                
                 
             } catch {
                 print(error.localizedDescription)

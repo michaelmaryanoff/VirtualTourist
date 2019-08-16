@@ -29,6 +29,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        //print("passedPin \(passedPin)")
         
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
@@ -79,8 +80,23 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         
     }
     
+
+    
     @IBAction func generateNewCollection(_ sender: UIButton) {
         generateNewCollectionButton.isEnabled = false
+        deleteAllPhotos()
+        photosArray = []
+        photoStringArray = []
+        print("photosarray before network call in \(#function) \(self.photosArray)")
+        self.makeNetworkCall()
+        print("photosArray after network call in \(#function) \(self.photosArray)")
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
+
+    }
+    
+    fileprivate func deleteAllPhotos() {
         for photo in photosArray {
             dataController.viewContext.delete(photo)
             do {
@@ -89,13 +105,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 print("could not delete these photos")
             }
         }
-        photosArray = []
-        photoStringArray = []
-        makeNetworkCall()
-        DispatchQueue.main.async {
-            self.collectionView.reloadData()
-        }
-
     }
     
     fileprivate func makeNetworkCall() {
@@ -112,7 +121,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             }
             
             
-            var randomPage = Int.random(in: 0...numberOfPages)
+        var randomPage = Int.random(in: 0...numberOfPages)
             
         FlikrClient.shared().requestPhotos(lat: self.passedPin.latitude, long: self.passedPin.longitude, randomPage: randomPage) { (success, photoUrls, error) in
             print("network call made")
