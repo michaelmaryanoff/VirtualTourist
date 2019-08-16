@@ -87,6 +87,7 @@ class FlikrClient {
         
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.perPage + "&page=\(randomPage)" +  RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
+        print("url: \(url)")
         
             //print("request url in \(#function): \(url)")
             
@@ -111,13 +112,13 @@ class FlikrClient {
                     return
                 }
                 
-                //print("Guard let jsonDict: \(jsonDict)")
+//                print("Guard let jsonDict: \(jsonDict)")
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")
                     return
                 }
-                //print("guard let photos: \(photos)")
+                print("guard let photos: \(photos)")
 
                 
                 guard let photosArray = photos["photo"] as? [[String:Any]] else {
@@ -127,13 +128,16 @@ class FlikrClient {
                 
                 print("guard let photosArray\(photosArray)")
                 
-                for photoItem in photosArray {
-                    if let newPhoto = self.getUrl(fromJSON: photoItem) {
-                        stringArray.append(newPhoto)
-                        // moved this into the loop
+                
+                    for photoItem in photosArray {
+                        if let newPhoto = self.getUrl(fromJSON: photoItem) {
+                            stringArray.append(newPhoto)
+                            // moved this into the loop
+                        }
+                        
                     }
-                    
-                }
+                
+                
                 print("stringArray after loop in client code: \(stringArray)")
                 DispatchQueue.main.async {
                     completion(true, stringArray, nil)

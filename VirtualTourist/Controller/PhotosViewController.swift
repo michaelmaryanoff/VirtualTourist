@@ -30,11 +30,11 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         //print("passedPin \(passedPin)")
+        self.generateNewCollectionButton.isEnabled = true
         
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         mapView.delegate = self
-        
         initalizeAnnotationsArray()
         retrievePhotos()
     }
@@ -72,6 +72,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 DispatchQueue.main.async {
                     print("called reload in retrieve")
                     self.collectionView.reloadData()
+                    
                 }
                 
             }
@@ -92,6 +93,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         print("photosArray after network call in \(#function) \(self.photosArray)")
         DispatchQueue.main.async {
             self.collectionView.reloadData()
+//            self.generateNewCollectionButton.isEnabled = true
         }
 
     }
@@ -108,6 +110,9 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     }
     
     fileprivate func makeNetworkCall() {
+        
+        photoStringArray = []
+        photosArray = []
         
         FlikrClient.shared().requestPages(lat: passedPin.latitude, long: passedPin.longitude) { (success, numberOfPages, error) in
             
@@ -126,6 +131,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         FlikrClient.shared().requestPhotos(lat: self.passedPin.latitude, long: self.passedPin.longitude, randomPage: randomPage) { (success, photoUrls, error) in
             print("network call made")
             print("randomPage: \(randomPage)")
+            print("(photoUrls being returned in the completion block: \(photoUrls)")
 
             if error != nil {
                 print("This is the error: \(error!.localizedDescription)")
@@ -140,6 +146,7 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 }
                 
                 self.photoStringArray = []
+                self.photosArray = []
                 self.photoStringArray = photosUrls
              
                 
@@ -152,9 +159,21 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                         newPhoto.pin?.longitude = self.passedPin.longitude
                         
                         self.photosArray.append(newPhoto)
+                        print("photosArray.count: \(self.photosArray.count)")
+                        print("photoStringArray.count: \(self.photoStringArray.count)")
+                        print("photoUrls.count: \(photosUrls.count)")
+                        if self.photosArray.count != photosUrls.count {
+                            print("not equal")
+                            DispatchQueue.main.async {
+                                self.generateNewCollectionButton.isEnabled = false
+                            }
+                            
+                        } else {
+                            print("is equal")
+                        }
                        
                         do {
-                            //print("saved in photosArray.append")
+                            
                             try self.dataController.viewContext.save()
                         } catch  {
                             print("could not save!")
@@ -230,7 +249,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
     
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
+//        generateNewCollectionButton.isEnabled = false
         let identifier = "customCell"
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
@@ -239,14 +258,11 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         
         if imagePath.image != nil {
             cell.beginAnimating()
-            generateNewCollectionButton.isEnabled = false
             cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
             cell.imageView!.image = UIImage(data: imagePath.image!)
             cell.endAnimating()
-            generateNewCollectionButton.isEnabled = true
         } else {
             cell.beginAnimating()
-            self.generateNewCollectionButton.isEnabled = false
             cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
             
             if let urlAtImagePath = imagePath.url {
@@ -255,10 +271,13 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
                     if let data = data  {
                         imagePath.image = data
                         cell.imageView!.image = UIImage(data: data)
+                      
+                        cell.endAnimating()
                         DispatchQueue.main.async {
                             self.generateNewCollectionButton.isEnabled = true
                         }
-                        cell.endAnimating()
+                        
+
                     }
                     
                     imagePath.pin = self.passedPin
