@@ -29,31 +29,13 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //print("passedPin \(passedPin)")
-        self.generateNewCollectionButton.isEnabled = true
         
+        self.generateNewCollectionButton.isEnabled = true
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         mapView.delegate = self
         initalizeAnnotationsArray()
         retrievePhotos()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        retrievePhotos()
-
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-//        do {
-//            try self.dataController.viewContext.save()
-//        } catch {
-//        print("Could not save before exiting")
-//        }
-        
     }
     
     func retrievePhotos() {
@@ -64,36 +46,27 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             
             if result.isEmpty {
-                print("the results are empty")
                 makeNetworkCall()
             } else {
-                print("the results are not empty so we will set the photosarray to the result")
                 photosArray = result
                 DispatchQueue.main.async {
-                    print("called reload in retrieve")
                     self.collectionView.reloadData()
                     
                 }
                 
             }
-            
         }
         
     }
-    
-
     
     @IBAction func generateNewCollection(_ sender: UIButton) {
         generateNewCollectionButton.isEnabled = false
         deleteAllPhotos()
         photosArray = []
         photoStringArray = []
-        print("photosarray before network call in \(#function) \(self.photosArray)")
         self.makeNetworkCall()
-        print("photosArray after network call in \(#function) \(self.photosArray)")
         DispatchQueue.main.async {
             self.collectionView.reloadData()
-//            self.generateNewCollectionButton.isEnabled = true
         }
 
     }
@@ -121,27 +94,22 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             }
             
             guard let numberOfPages = numberOfPages else {
-                print("could not get number of pages in PhotosViewController")
                 return
             }
             
             
-        var randomPage = Int.random(in: 0...numberOfPages)
+        let randomPage = Int.random(in: 0...numberOfPages)
             
         FlikrClient.shared().requestPhotos(lat: self.passedPin.latitude, long: self.passedPin.longitude, randomPage: randomPage) { (success, photoUrls, error) in
-            print("network call made")
-            print("randomPage: \(randomPage)")
-            print("(photoUrls being returned in the completion block: \(photoUrls)")
-
+            
             if error != nil {
                 print("This is the error: \(error!.localizedDescription)")
                 return
             }
             
             if success {
-                print("success in network call")
                 guard let photosUrls = photoUrls else {
-                    print("We could not find any URLs")
+                    print("not photo URLs")
                     return
                 }
                 
@@ -149,19 +117,14 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                 self.photosArray = []
                 self.photoStringArray = photosUrls
              
-                
                 for photoItem in photosUrls {
                     
-                    DispatchQueue.main.async {
-                        let newPhoto = Photo(context: self.dataController.viewContext)
+                        var newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photoItem
                         newPhoto.pin?.latitude = self.passedPin.latitude
                         newPhoto.pin?.longitude = self.passedPin.longitude
-                        
                         self.photosArray.append(newPhoto)
-                        print("photosArray.count: \(self.photosArray.count)")
-                        print("photoStringArray.count: \(self.photoStringArray.count)")
-                        print("photoUrls.count: \(photosUrls.count)")
+                    
                         if self.photosArray.count != photosUrls.count {
                             print("not equal")
                             DispatchQueue.main.async {
@@ -169,31 +132,19 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
                             }
                             
                         } else {
-                            print("is equal")
+                            self.generateNewCollectionButton.isEnabled = true
                         }
                        
                         do {
-                            
                             try self.dataController.viewContext.save()
                         } catch  {
                             print("could not save!")
                         }
                         
-                    }
-                    
-                    
                 }
-//                if self.photosArray.count != photosUrls.count {
-//                    DispatchQueue.main.async {
-//                        self.generateNewCollectionButton.isEnabled = false
-//                    }
-//                    
-//                }
-                
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
-                
             } else {
                 print("error in call")
             }
@@ -214,27 +165,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
             }
         }
     }
-    
-    func dataToImage(theData: Data, completion: @escaping (_ image: UIImage) -> Void){
-        
-        DispatchQueue.global(qos: .userInitiated).async { () -> Void in
-            
-            if let newData = UIImage(data: theData) {
-                
-                
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    
-                    
-                    completion(newData)
-                    //moved this down
-                }
-                    
-                
-            }
-        }
-    }
-    
 
 }
 
@@ -249,7 +179,6 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
     
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//        generateNewCollectionButton.isEnabled = false
         let identifier = "customCell"
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
@@ -279,7 +208,6 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
                         
 
                     }
-                    
                     imagePath.pin = self.passedPin
                     
                     do {
@@ -299,7 +227,6 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedPhoto = self.photosArray[indexPath.row]
-        print("selectedPhoto \(selectedPhoto)")
         self.dataController.viewContext.delete(selectedPhoto)
         self.photosArray.remove(at: indexPath.row)
         collectionView.deleteItems(at: [indexPath])
@@ -310,7 +237,6 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         }
         
         self.collectionView.reloadData()
-        
     }
     
 }

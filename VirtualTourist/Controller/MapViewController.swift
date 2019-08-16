@@ -23,8 +23,6 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
     
     var fetchedResultsController:NSFetchedResultsController<Pin>!
 
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         

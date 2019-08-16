@@ -53,7 +53,6 @@ class FlikrClient {
                         for (key, value) in value as! [String:Any] {
                             if key == "pages" {
                                 let pages = value as! Int
-                                print("we got some pages in \(#function): \(pages)")
                                 completion(true, pages, nil)
                             }
                         }
@@ -62,7 +61,6 @@ class FlikrClient {
                     }
                     
                 }
-                
                 
             } catch {
                 print(error.localizedDescription)
@@ -75,21 +73,8 @@ class FlikrClient {
     
     func requestPhotos(lat: Double, long: Double, randomPage: Int, completion: @escaping(Bool, [String]?, Error?) -> Void) {
         
-//        self.requestPages(lat: lat, long: long) { (success, numberOfPages, error) in
-//
-//            guard let numberOfPages = numberOfPages else {
-//                print("numberOfpages returned nil")
-//                return
-//            }
-//
-//            var randomPage = Int.random(in: 1...numberOfPages)
-//            print("randomPagePassedThrough: \(randomPage)")
-        
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.perPage + "&page=\(randomPage)" +  RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
-        print("url: \(url)")
-        
-            //print("request url in \(#function): \(url)")
             
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
@@ -112,8 +97,6 @@ class FlikrClient {
                     return
                 }
                 
-//                print("Guard let jsonDict: \(jsonDict)")
-                
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
                     print("guard 2")
                     return
@@ -127,8 +110,6 @@ class FlikrClient {
                 }
                 
                 print("guard let photosArray\(photosArray)")
-                
-                
                     for photoItem in photosArray {
                         if let newPhoto = self.getUrl(fromJSON: photoItem) {
                             stringArray.append(newPhoto)
@@ -136,7 +117,6 @@ class FlikrClient {
                         }
                         
                     }
-                
                 
                 print("stringArray after loop in client code: \(stringArray)")
                 DispatchQueue.main.async {
@@ -149,7 +129,6 @@ class FlikrClient {
             
         }
         task.resume()
-//        }
     }
     
     func getUrl(fromJSON json: [String:Any]) -> String? {
