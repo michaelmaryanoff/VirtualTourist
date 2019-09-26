@@ -68,6 +68,16 @@ class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
             
         }
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "presentPhotosCollection" {
+            let destinationVC = segue.destination as! PhotosViewController
+            
+            destinationVC.passedPin = sender as! Pin
+            destinationVC.dataController = dataController
+            
+        }
+    }
 
 
 }
@@ -132,15 +142,7 @@ extension MapViewController: MKMapViewDelegate {
         }
     }
     
-   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "presentPhotosCollection" {
-            let destinationVC = segue.destination as! PhotosViewController
-            
-            destinationVC.passedPin = sender as! Pin
-            destinationVC.dataController = dataController
-            
-        }
-    }
+
     
 
     

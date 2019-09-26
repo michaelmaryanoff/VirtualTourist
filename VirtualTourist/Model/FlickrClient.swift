@@ -27,6 +27,7 @@ class FlikrClient {
         
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
+        print(url)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
@@ -46,6 +47,7 @@ class FlikrClient {
                     print("guard 1")
                     return
                 }
+                print(json)
                 
                 
                 for (key, value) in jsonDict {
