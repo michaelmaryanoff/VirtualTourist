@@ -158,7 +158,6 @@ class PhotosViewController: UIViewController {
         }
         }
     }
-
     
     func urlToData(urlString: String, completion: @escaping (_ data: Data?) -> Void){
         

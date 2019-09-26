@@ -42,8 +42,6 @@ extension MapViewController: MKMapViewDelegate {
         segueToPhotosVC(view: view)
     }
     
-
-    
     // MARK: - Helper functions
     func segueToPhotosVC(view: MKAnnotationView) {
         let checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)

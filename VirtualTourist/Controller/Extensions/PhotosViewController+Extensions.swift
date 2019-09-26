@@ -48,7 +48,7 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         do {
             try self.dataController.viewContext.save()
         } catch {
-            print("cannot delete")
+            print("cannot delete selected photo")
         }
         
         self.collectionView.reloadData()
