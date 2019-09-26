@@ -41,11 +41,6 @@ class MapViewController: UIViewController {
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-    }
-    
     fileprivate func makeFetchRequest(_ fetchRequest: NSFetchRequest<Pin>) {
         // Takes the results of the fetch request
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
