@@ -6,7 +6,6 @@
 //  Copyright © 2019 Michael Maryanoff. All rights reserved.
 //
 
-import Foundation
 import CoreData
 
 class DataController {
