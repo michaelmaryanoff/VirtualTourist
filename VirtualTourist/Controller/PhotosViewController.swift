@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate {
+class PhotosViewController: UIViewController {
     
     var dataController: DataController!
     
@@ -19,8 +19,6 @@ class PhotosViewController: UIViewController, NSFetchedResultsControllerDelegate
     var photoStringArray: [String] = []
     
     var photosArray: [Photo] = []
-    
-    var fetchedResultsController:NSFetchedResultsController<Photo>!
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
