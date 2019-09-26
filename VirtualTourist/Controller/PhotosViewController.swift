@@ -12,18 +12,20 @@ import CoreData
 
 class PhotosViewController: UIViewController {
     
+    // MARK: - Managed Core Data variables
     var dataController: DataController!
-    
     var passedPin: Pin!
-    
+    var photosArray: [Photo] = []
+
+    // MARK: - Non-managed variables
     var photoStringArray: [String] = []
     
-    var photosArray: [Photo] = []
-    
+    // MARK: - IBOutlets
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var generateNewCollectionButton: UIButton!
     
+    // MARK: - Lifecycle functions
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -35,6 +37,20 @@ class PhotosViewController: UIViewController {
         retrievePhotos()
     }
     
+    // MARK: - IBActions
+    @IBAction func generateNewCollection(_ sender: UIButton) {
+        generateNewCollectionButton.isEnabled = false
+        deleteAllPhotos()
+        photosArray = []
+        photoStringArray = []
+        self.makeNetworkCall()
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
+        
+    }
+    
+    // MARK: - Photo functions
     func retrievePhotos() {
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
@@ -56,18 +72,6 @@ class PhotosViewController: UIViewController {
         
     }
     
-    @IBAction func generateNewCollection(_ sender: UIButton) {
-        generateNewCollectionButton.isEnabled = false
-        deleteAllPhotos()
-        photosArray = []
-        photoStringArray = []
-        self.makeNetworkCall()
-        DispatchQueue.main.async {
-            self.collectionView.reloadData()
-        }
-
-    }
-    
     fileprivate func deleteAllPhotos() {
         for photo in photosArray {
             dataController.viewContext.delete(photo)
@@ -79,6 +83,7 @@ class PhotosViewController: UIViewController {
         }
     }
     
+    // MARK: - Networking functions
     fileprivate func makeNetworkCall() {
         
         photoStringArray = []
