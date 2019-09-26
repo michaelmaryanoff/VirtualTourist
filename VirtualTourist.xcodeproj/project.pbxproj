@@ -62,10 +62,10 @@
 		CB045E0D22F0EEC800DD707A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				CBC55662233D1CAB00C53E29 /* Extensions */,
 				CB86DEED22E8C8FB00B53E45 /* MapViewController.swift */,
 				CB7AAE7C22F0C2AA009D54D4 /* PhotosViewController.swift */,
 				CB86DEEB22E8C8FB00B53E45 /* AppDelegate.swift */,
+				CBC55662233D1CAB00C53E29 /* Extensions */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
