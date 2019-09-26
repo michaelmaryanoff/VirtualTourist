@@ -19,15 +19,14 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let identifier = "customCell"
-        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CustomCell
         
-        let imagePath = photosArray[indexPath.row]
+        let photo = photosArray[indexPath.row]
         
-        if imagePath.image != nil {
-            loadImageInCell(forCell: cell, photo: imagePath, result: .imageDoesExist)
+        if photo.image != nil {
+            loadImageInCell(forCell: cell, photo: photo, result: .imageDoesExist)
         } else {
-            loadImageInCell(forCell: cell, photo: imagePath, result: .imageDoesNotExist)
+            loadImageInCell(forCell: cell, photo: photo, result: .imageDoesNotExist)
         }
         
         return cell
