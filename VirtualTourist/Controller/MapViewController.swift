@@ -12,16 +12,18 @@ import MapKit
 
 class MapViewController: UIViewController {
     
-    @IBOutlet weak var mapView: MKMapView!
     
+    // MARK: - Managed Core Data variables
     var dataController: DataController!
-    
-    var annotations: [MKPointAnnotation] = []
-    
     var pinArray: [Pin] = []
     
-    var fetchedResultsController:NSFetchedResultsController<Pin>!
+    // MARK: - Non-managed variables
+    var annotations: [MKPointAnnotation] = []
+    
+    // MARK: - IBOutlets
+    @IBOutlet weak var mapView: MKMapView!
 
+    // MARK: - Lifecycle functions
     override func viewDidLoad() {
         super.viewDidLoad()
         
