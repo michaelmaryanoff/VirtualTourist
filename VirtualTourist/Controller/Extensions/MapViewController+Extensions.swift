@@ -28,17 +28,16 @@ extension MapViewController: MKMapViewDelegate {
             // Adds pin with relevant information to annotation array
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
-            var locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
+            let locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
             
             // Comes up with an place name and adds it to new pin
             let geocoder = CLGeocoder()
             geocoder.reverseGeocodeLocation(locationForGeocoding) { (placemarks, error) in
                 if error == nil {
                     if let placemark = placemarks?[0] {
-                        let location = placemark.location!
                         
                         // Have some restrictions on locality
-                        var locationString = placemark.locality ?? "Could not determine locality"
+                        let locationString = placemark.locality ?? "Could not determine locality"
                         newPin.placeName = locationString
                     }
                 }
@@ -58,8 +57,8 @@ extension MapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
-        var checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)
-        var checkedLongitude = Double(view.annotation?.coordinate.longitude ?? 0)
+        let checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)
+        let checkedLongitude = Double(view.annotation?.coordinate.longitude ?? 0)
         
         for pin in pinArray {
             if pin.latitude == checkedLatitude && pin.longitude == checkedLongitude {
