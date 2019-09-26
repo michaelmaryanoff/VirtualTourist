@@ -29,10 +29,11 @@ class PhotosViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.generateNewCollectionButton.isEnabled = true
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         mapView.delegate = self
+        
+        self.generateNewCollectionButton.isEnabled = true
         initalizeAnnotationsArray()
         retrievePhotos()
     }
@@ -52,6 +53,7 @@ class PhotosViewController: UIViewController {
     
     // MARK: - Photo functions
     func retrievePhotos() {
+        
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", passedPin)
         fetchRequest.predicate = predicate
@@ -92,7 +94,7 @@ class PhotosViewController: UIViewController {
         FlikrClient.shared().requestPages(lat: passedPin.latitude, long: passedPin.longitude) { (success, numberOfPages, error) in
             
             if error != nil {
-                print(error?.localizedDescription)
+                print(error?.localizedDescription ?? "There was an error")
             }
             
             guard let numberOfPages = numberOfPages else {
@@ -121,7 +123,7 @@ class PhotosViewController: UIViewController {
              
                 for photoItem in photosUrls {
                     
-                        var newPhoto = Photo(context: self.dataController.viewContext)
+                        let newPhoto = Photo(context: self.dataController.viewContext)
                         newPhoto.url = photoItem
                         newPhoto.pin?.latitude = self.passedPin.latitude
                         newPhoto.pin?.longitude = self.passedPin.longitude

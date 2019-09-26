@@ -12,7 +12,6 @@ import MapKit
 
 class MapViewController: UIViewController {
     
-    
     // MARK: - Managed Core Data variables
     var dataController: DataController!
     var pinArray: [Pin] = []
