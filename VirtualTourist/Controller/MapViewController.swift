@@ -41,6 +41,7 @@ class MapViewController: UIViewController {
         
     }
     
+    // MARK: - Core Data functions
     fileprivate func makeFetchRequest(_ fetchRequest: NSFetchRequest<Pin>) {
         // Takes the results of the fetch request
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
@@ -65,6 +66,7 @@ class MapViewController: UIViewController {
         }
     }
     
+    // MARK: - Segue functions
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "presentPhotosCollection" {
             let destinationVC = segue.destination as! PhotosViewController
