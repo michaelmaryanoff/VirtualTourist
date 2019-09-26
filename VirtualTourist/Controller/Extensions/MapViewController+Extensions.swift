@@ -9,6 +9,7 @@
 import UIKit
 import MapKit
 
+// MARK: - MKMapViewDelegate functions
 extension MapViewController: MKMapViewDelegate {
     
     
@@ -68,6 +69,7 @@ extension MapViewController: MKMapViewDelegate {
         }
     }
     
+    // MARK: - Helper functions
     func addLongPressGestureRecognizer() {
         
         // Adds a gesture recognizers to the map
