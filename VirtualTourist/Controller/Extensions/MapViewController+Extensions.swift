@@ -12,7 +12,6 @@ import MapKit
 // MARK: - MKMapViewDelegate functions
 extension MapViewController: MKMapViewDelegate {
     
-    
     @objc func addAnnotation(sender: UILongPressGestureRecognizer) {
     
         if sender.state == .began {
@@ -38,6 +37,20 @@ extension MapViewController: MKMapViewDelegate {
         }
     }
     
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        
+        let checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)
+        let checkedLongitude = Double(view.annotation?.coordinate.longitude ?? 0)
+        
+        for pin in pinArray {
+            if pin.latitude == checkedLatitude && pin.longitude == checkedLongitude {
+                self.performSegue(withIdentifier: "presentPhotosCollection", sender: pin)
+                return
+            }
+        }
+    }
+    
+    // MARK: - Helper functions
     func createNewPin(withCoordinate recognizedCoordinate: CLLocationCoordinate2D) -> Pin {
         let newPin = Pin(context: dataController.viewContext)
         newPin.latitude = recognizedCoordinate.latitude
@@ -58,21 +71,6 @@ extension MapViewController: MKMapViewDelegate {
         
     }
     
-    
-    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        
-        let checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)
-        let checkedLongitude = Double(view.annotation?.coordinate.longitude ?? 0)
-        
-        for pin in pinArray {
-            if pin.latitude == checkedLatitude && pin.longitude == checkedLongitude {
-                self.performSegue(withIdentifier: "presentPhotosCollection", sender: pin)
-                return
-            }
-        }
-    }
-    
-    // MARK: - Helper functions
     func addLongPressGestureRecognizer() {
         
         // Adds a gesture recognizers to the map
