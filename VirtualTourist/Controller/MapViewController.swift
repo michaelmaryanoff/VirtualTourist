@@ -24,21 +24,22 @@ class MapViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
 
     // MARK: - Lifecycle functions
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
         mapView.delegate = self
+        
         addLongPressGestureRecognizer()
-        
-        // Creates a fetch request
-        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
-        
-        makeFetchRequest(fetchRequest)
+        setupFetchRequest()
         
     }
     
     // MARK: - Core Data functions
+    func setupFetchRequest() {
+        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
+        makeFetchRequest(fetchRequest)
+    }
+    
     fileprivate func makeFetchRequest(_ fetchRequest: NSFetchRequest<Pin>) {
         // Takes the results of the fetch request
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
