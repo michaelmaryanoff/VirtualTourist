@@ -42,6 +42,9 @@ extension MapViewController: MKMapViewDelegate {
         segueToPhotosVC(view: view)
     }
     
+
+    
+    // MARK: - Helper functions
     func segueToPhotosVC(view: MKAnnotationView) {
         let checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)
         let checkedLongitude = Double(view.annotation?.coordinate.longitude ?? 0)
@@ -54,7 +57,6 @@ extension MapViewController: MKMapViewDelegate {
         }
     }
     
-    // MARK: - Helper functions
     func createNewPin(withCoordinate recognizedCoordinate: CLLocationCoordinate2D) -> Pin {
         let newPin = Pin(context: dataController.viewContext)
         newPin.latitude = recognizedCoordinate.latitude

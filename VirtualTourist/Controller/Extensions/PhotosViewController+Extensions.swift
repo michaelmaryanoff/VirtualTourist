@@ -12,6 +12,7 @@ import MapKit
 //MARK: - Collection view Functions
 extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
+    // MARK: - Main collection view functions
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return photosArray.count
     }
@@ -24,39 +25,9 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         let imagePath = photosArray[indexPath.row]
         
         if imagePath.image != nil {
-            cell.beginAnimating()
-            cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
-            cell.imageView!.image = UIImage(data: imagePath.image!)
-            cell.endAnimating()
+            loadImageInCell(forCell: cell, photo: imagePath, result: .imageDoesExist)
         } else {
-            cell.beginAnimating()
-            cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
-            
-            if let urlAtImagePath = imagePath.url {
-                urlToData(urlString: urlAtImagePath) { (data) in
-                    
-                    if let data = data  {
-                        imagePath.image = data
-                        cell.imageView!.image = UIImage(data: data)
-                        
-                        cell.endAnimating()
-                        DispatchQueue.main.async {
-                            self.generateNewCollectionButton.isEnabled = true
-                        }
-                        
-                        
-                    }
-                    imagePath.pin = self.passedPin
-                    
-                    do {
-                        try self.dataController.viewContext.save()
-                    } catch {
-                        print("could not save photos in \(#function)")
-                    }
-                    
-                }
-                
-            }
+            loadImageInCell(forCell: cell, photo: imagePath, result: .imageDoesNotExist)
         }
         
         return cell
@@ -76,6 +47,59 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         self.collectionView.reloadData()
     }
     
+    // MARK: Collection view Helper functions
+    enum Result {
+        case imageDoesExist
+        case imageDoesNotExist
+    }
+    
+    func loadImageInCell(forCell cell: CustomCell, photo: Photo, result: Result) {
+        switch result {
+            case .imageDoesExist:
+                loadExistingImage(cell: cell, photo: photo)
+            case .imageDoesNotExist:
+                loadNewImage(forCell: cell, photo: photo)
+        }
+    }
+    
+    func loadNewImage(forCell cell: CustomCell, photo: Photo) {
+        cell.beginAnimating()
+        cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
+        
+        if let urlAtImagePath = photo.url {
+            urlToData(urlString: urlAtImagePath) { (data) in
+                
+                if let data = data  {
+                    photo.image = data
+                    cell.imageView!.image = UIImage(data: data)
+                    
+                    cell.endAnimating()
+                    DispatchQueue.main.async {
+                        self.generateNewCollectionButton.isEnabled = true
+                    }
+                    
+                    
+                }
+                photo.pin = self.passedPin
+                
+                do {
+                    try self.dataController.viewContext.save()
+                } catch {
+                    print("could not save photos in \(#function)")
+                }
+                
+            }
+            
+        }
+    }
+    
+    func loadExistingImage (cell: CustomCell, photo: Photo) {
+        cell.beginAnimating()
+        cell.imageView.image = UIImage(named: "VirtualTourist_Placeholder")
+        cell.imageView!.image = UIImage(data: photo.image!)
+        cell.endAnimating()
+    }
+    
 }
 
 // MARK: - Map functions
@@ -90,7 +114,6 @@ extension PhotosViewController: MKMapViewDelegate {
     }
     
     func initalizeAnnotationsArray() {
-        print("\(#function) called")
         let passedPinLat = passedPin.latitude
         let passedPinLong = passedPin.longitude
         var annotations = [MKPointAnnotation]()
