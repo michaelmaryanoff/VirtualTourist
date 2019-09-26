@@ -18,8 +18,8 @@ extension MapViewController: MKMapViewDelegate {
         if sender.state == .began {
             
             // Translate touch into a CGPoint
-            let recognizedPoint: CGPoint = sender.location(in: mapView)
-            let recognizedCoordinate: CLLocationCoordinate2D = mapView.convert(recognizedPoint, toCoordinateFrom: mapView)
+            
+            let recognizedCoordinate = createNewCoordinate(sender: sender)
             
             // Creates a new NSManagedObject based off of the tapped coordinate
             let newPin = Pin(context: dataController.viewContext)
@@ -29,6 +29,7 @@ extension MapViewController: MKMapViewDelegate {
             // Adds pin with relevant information to annotation array
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
+            
             let locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
             
             // Comes up with an place name and adds it to new pin
@@ -55,6 +56,13 @@ extension MapViewController: MKMapViewDelegate {
             }
         }
     }
+    
+    func createNewCoordinate(sender: UILongPressGestureRecognizer) -> CLLocationCoordinate2D {
+        let recognizedPoint: CGPoint = sender.location(in: mapView)
+        let recognizedCoordinate: CLLocationCoordinate2D = mapView.convert(recognizedPoint, toCoordinateFrom: mapView)
+        return recognizedCoordinate
+    }
+    
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
