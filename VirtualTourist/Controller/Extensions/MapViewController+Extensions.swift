@@ -26,21 +26,6 @@ extension MapViewController: MKMapViewDelegate {
             // Adds pin with relevant information to annotation array
             let annotation = createNewAnnotation(withPin: newPin)
             
-            let locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
-            
-            // Comes up with an place name and adds it to new pin
-            let geocoder = CLGeocoder()
-            geocoder.reverseGeocodeLocation(locationForGeocoding) { (placemarks, error) in
-                if error == nil {
-                    if let placemark = placemarks?[0] {
-                        
-                        // Have some restrictions on locality
-                        let locationString = placemark.locality ?? "Could not determine locality"
-                        newPin.placeName = locationString
-                    }
-                }
-            }
-            
             // Appends to relevant arrays
             annotations.append(annotation)
             pinArray.append(newPin)
