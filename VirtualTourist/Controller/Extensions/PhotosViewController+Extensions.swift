@@ -34,12 +34,12 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedPhoto = self.photosArray[indexPath.row]
+        
         deleteSelectedPhoto(selectedPhoto: selectedPhoto, indexPath: indexPath)
         
     }
     
     // MARK: Collection view Helper functions
-    
     func deleteSelectedPhoto(selectedPhoto: Photo, indexPath: IndexPath) {
 
         self.dataController.viewContext.delete(selectedPhoto)

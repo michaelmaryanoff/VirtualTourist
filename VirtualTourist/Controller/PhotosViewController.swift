@@ -34,6 +34,7 @@ class PhotosViewController: UIViewController {
         mapView.delegate = self
         
         self.generateNewCollectionButton.isEnabled = true
+        
         initalizeAnnotationsArray()
         retrievePhotos()
     }
@@ -41,6 +42,11 @@ class PhotosViewController: UIViewController {
     // MARK: - IBActions
     @IBAction func generateNewCollection(_ sender: UIButton) {
         generateNewCollectionButton.isEnabled = false
+        resetPhotos()
+    }
+    
+    // MARK: - Photo functions
+    func resetPhotos() {
         deleteAllPhotos()
         photosArray = []
         photoStringArray = []
@@ -48,10 +54,8 @@ class PhotosViewController: UIViewController {
         DispatchQueue.main.async {
             self.collectionView.reloadData()
         }
-        
     }
     
-    // MARK: - Photo functions
     func retrievePhotos() {
         
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()

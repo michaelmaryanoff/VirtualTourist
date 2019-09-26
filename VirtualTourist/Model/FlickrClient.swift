@@ -10,8 +10,7 @@ import Foundation
 
 class FlikrClient {
     
-    var dataController: DataController!
-    
+    // MARK: - Constants
     struct RequestConstants {
         static let baseURLString = "https://www.flickr.com/services/rest/"
         static let method = "?method=flickr.photos.search"
@@ -23,6 +22,7 @@ class FlikrClient {
         static let perPage = "&per_page=30"
     }
     
+    // MARK: - API request functions
     func requestPages(lat: Double, long: Double, completion: @escaping(Bool, Int?, Error?) -> Void) {
         
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.format + RequestConstants.noJsonCallBack
@@ -126,6 +126,7 @@ class FlikrClient {
         task.resume()
     }
     
+    // MARK: - Helper functions
     func getUrl(fromJSON json: [String:Any]) -> String? {
         guard let urlString = json["url_h"] as? String else {
             return nil
@@ -140,6 +141,7 @@ class FlikrClient {
         return pagesString
     }
     
+    // Creates singleton class
     class func shared() -> FlikrClient {
         struct Singleton {
             private init() {}
