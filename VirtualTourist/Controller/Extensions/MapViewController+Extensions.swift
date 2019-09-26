@@ -11,9 +11,9 @@ import MapKit
 
 extension MapViewController: MKMapViewDelegate {
     
+    
     @objc func addAnnotation(sender: UILongPressGestureRecognizer) {
-        // Adapted from StackOverflow post
-        
+    
         if sender.state == .began {
             
             // Translate touch into a CGPoint
@@ -69,9 +69,12 @@ extension MapViewController: MKMapViewDelegate {
         }
     }
     
-    
-    
-    
+    func addLongPressGestureRecognizer() {
+        
+        // Adds a gesture recognizers to the map
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(sender:)))
+        mapView.addGestureRecognizer(longPressGestureRecognizer)
+    }
     
     
     

@@ -24,15 +24,12 @@ class MapViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
 
     // MARK: - Lifecycle functions
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Sets the map view delegate
         mapView.delegate = self
-        
-        // Adds a gesture recognizers to the map
-        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(sender:)))
-        mapView.addGestureRecognizer(longPressGestureRecognizer)
+        addLongPressGestureRecognizer()
         
         // Creates a fetch request
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
