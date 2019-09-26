@@ -24,8 +24,7 @@ extension MapViewController: MKMapViewDelegate {
             let newPin = createNewPin(withCoordinate: recognizedCoordinate)
             
             // Adds pin with relevant information to annotation array
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = CLLocationCoordinate2D(latitude: newPin.latitude, longitude: newPin.longitude)
+            let annotation = createNewAnnotation(withPin: newPin)
             
             let locationForGeocoding = CLLocation(latitude: newPin.latitude, longitude: newPin.longitude)
             
@@ -65,6 +64,13 @@ extension MapViewController: MKMapViewDelegate {
         let recognizedPoint: CGPoint = sender.location(in: mapView)
         let recognizedCoordinate: CLLocationCoordinate2D = mapView.convert(recognizedPoint, toCoordinateFrom: mapView)
         return recognizedCoordinate
+    }
+    
+    func createNewAnnotation(withPin pin: Pin) -> MKPointAnnotation {
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
+        return annotation
+        
     }
     
     
