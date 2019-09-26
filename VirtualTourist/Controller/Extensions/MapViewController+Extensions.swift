@@ -12,6 +12,7 @@ import MapKit
 // MARK: - MKMapViewDelegate functions
 extension MapViewController: MKMapViewDelegate {
     
+    // MARK: Primary MapView functions
     @objc func addAnnotation(sender: UILongPressGestureRecognizer) {
     
         if sender.state == .began {
