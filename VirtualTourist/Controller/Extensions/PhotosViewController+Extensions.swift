@@ -34,6 +34,14 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedPhoto = self.photosArray[indexPath.row]
+        deleteSelectedPhoto(selectedPhoto: selectedPhoto, indexPath: indexPath)
+        
+    }
+    
+    // MARK: Collection view Helper functions
+    
+    func deleteSelectedPhoto(selectedPhoto: Photo, indexPath: IndexPath) {
+
         self.dataController.viewContext.delete(selectedPhoto)
         self.photosArray.remove(at: indexPath.row)
         collectionView.deleteItems(at: [indexPath])
@@ -46,7 +54,6 @@ extension PhotosViewController: UICollectionViewDataSource, UICollectionViewDele
         self.collectionView.reloadData()
     }
     
-    // MARK: Collection view Helper functions
     enum Result {
         case imageDoesExist
         case imageDoesNotExist
