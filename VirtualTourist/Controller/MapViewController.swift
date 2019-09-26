@@ -50,14 +50,13 @@ class MapViewController: UIViewController {
             for pin in pinArray {
                 
                 // Creates a new annotation from the results array and adds to annotations
-                var loadedAnnotation = MKPointAnnotation()
+                let loadedAnnotation = MKPointAnnotation()
                 let lat = pin.latitude
                 let long = pin.longitude
                 let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
                 loadedAnnotation.coordinate = coordinate
                 annotations.append(loadedAnnotation)
                 mapView.addAnnotation(loadedAnnotation)
-                
                 
             }
             
@@ -69,7 +68,7 @@ class MapViewController: UIViewController {
         if segue.identifier == "presentPhotosCollection" {
             let destinationVC = segue.destination as! PhotosViewController
             
-            destinationVC.passedPin = sender as! Pin
+            destinationVC.passedPin = sender as? Pin
             destinationVC.dataController = dataController
             
         }
