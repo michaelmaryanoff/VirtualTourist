@@ -17,6 +17,7 @@
 		CB86DEF922E8C8FB00B53E45 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB86DEF722E8C8FB00B53E45 /* LaunchScreen.storyboard */; };
 		CB86DF0322E8D88600B53E45 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB86DF0222E8D88600B53E45 /* DataController.swift */; };
 		CBA5D12D22EF6B2D00143572 /* FlickrClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA5D12C22EF6B2D00143572 /* FlickrClient.swift */; };
+		CBC55664233D1CC100C53E29 /* MapViewController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBC55663233D1CC100C53E29 /* MapViewController+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		CB86DEFA22E8C8FB00B53E45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB86DF0222E8D88600B53E45 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		CBA5D12C22EF6B2D00143572 /* FlickrClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrClient.swift; sourceTree = "<group>"; };
+		CBC55663233D1CC100C53E29 /* MapViewController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MapViewController+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 		CB045E0D22F0EEC800DD707A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				CBC55662233D1CAB00C53E29 /* Extensions */,
 				CB86DEED22E8C8FB00B53E45 /* MapViewController.swift */,
 				CB7AAE7C22F0C2AA009D54D4 /* PhotosViewController.swift */,
 				CB86DEEB22E8C8FB00B53E45 /* AppDelegate.swift */,
@@ -101,6 +104,14 @@
 				CB86DEFA22E8C8FB00B53E45 /* Info.plist */,
 			);
 			path = VirtualTourist;
+			sourceTree = "<group>";
+		};
+		CBC55662233D1CAB00C53E29 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				CBC55663233D1CC100C53E29 /* MapViewController+Extensions.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -175,6 +186,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB86DEEE22E8C8FB00B53E45 /* MapViewController.swift in Sources */,
+				CBC55664233D1CC100C53E29 /* MapViewController+Extensions.swift in Sources */,
 				CB86DF0322E8D88600B53E45 /* DataController.swift in Sources */,
 				CB86DEEC22E8C8FB00B53E45 /* AppDelegate.swift in Sources */,
 				CB7AAE7D22F0C2AA009D54D4 /* PhotosViewController.swift in Sources */,
