@@ -39,7 +39,10 @@ extension MapViewController: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        
+        segueToPhotosVC(view: view)
+    }
+    
+    func segueToPhotosVC(view: MKAnnotationView) {
         let checkedLatitude = Double(view.annotation?.coordinate.latitude ?? 0)
         let checkedLongitude = Double(view.annotation?.coordinate.longitude ?? 0)
         
