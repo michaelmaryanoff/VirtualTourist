@@ -130,7 +130,6 @@ class PhotosViewController: UIViewController {
                         self.photosArray.append(newPhoto)
                     
                         if self.photosArray.count != photosUrls.count {
-                            print("not equal")
                             DispatchQueue.main.async {
                                 self.generateNewCollectionButton.isEnabled = false
                             }

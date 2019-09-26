@@ -27,7 +27,6 @@ class FlikrClient {
         
         let url = RequestConstants.baseURLString + RequestConstants.method + RequestConstants.apiKey + "&lat=\(lat)" + "&lon=\(long)" + RequestConstants.radius + RequestConstants.extras + RequestConstants.format + RequestConstants.noJsonCallBack
         let request = URLRequest(url: URL(string: url)!)
-        print(url)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
@@ -44,11 +43,9 @@ class FlikrClient {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
                 guard let jsonDict = json as? [String:Any] else {
-                    print("guard 1")
+                    print("could not initialize dictionary")
                     return
                 }
-                print(json)
-                
                 
                 for (key, value) in jsonDict {
                     if key == "photos" {
@@ -95,23 +92,20 @@ class FlikrClient {
                 let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
                 
                 guard let jsonDict = json as? [String:Any] else {
-                    print("guard 1")
+                    print("could not initialize jsonDict")
                     return
                 }
                 
                 guard let photos = jsonDict["photos"] as? [String:Any] else {
-                    print("guard 2")
+                    print("could not initialize photos")
                     return
                 }
-                print("guard let photos: \(photos)")
 
-                
                 guard let photosArray = photos["photo"] as? [[String:Any]] else {
-                    print("guard 3")
+                    print("could not initialize photos 2")
                     return
                 }
-                
-                print("guard let photosArray\(photosArray)")
+        
                     for photoItem in photosArray {
                         if let newPhoto = self.getUrl(fromJSON: photoItem) {
                             stringArray.append(newPhoto)
@@ -120,7 +114,6 @@ class FlikrClient {
                         
                     }
                 
-                print("stringArray after loop in client code: \(stringArray)")
                 DispatchQueue.main.async {
                     completion(true, stringArray, nil)
                 }
