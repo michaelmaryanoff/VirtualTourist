@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 import MapKit
 
-class MapViewController: UIViewController, NSFetchedResultsControllerDelegate {
+class MapViewController: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
     
